@@ -245,7 +245,7 @@ elif mode == "Appliance-Based Estimator":
 
         st.session_state['required_kw'] = required_kw
         st.session_state['appliance_energy_used'] = appliance_energy_used
-       st.markdown("---")
+        st.markdown("---")
         st.subheader("📥 Download Estimation Report")
 
         # Prepare text report
