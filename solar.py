@@ -169,30 +169,30 @@ elif mode == "Appliance-Based Estimator":
                            laptop_hours=4, ac=True, ac_hours=5, washing=True, washing_hours=1,
                            ro=True, ro_hours=2, oven=True, oven_hours=30))
 
-    with st.expander("Appliance Selection")
-    fan_count = st.number_input("Ceiling Fans (75W): Count", 0, 10, values['fan_count'])
-    fan_hours = st.number_input("Hours/day for Fans", 0.0, 24.0, float(values['fan_hours']))
-    bulb_count = st.number_input("LED Bulbs (9W): Count", 0, 20, values['bulb_count'])
-    bulb_hours = st.number_input("Hours/day for Bulbs", 0.0, 24.0, float(values['bulb_hours']))
-    fridge = st.checkbox("Refrigerator (150W, 24x7)", value=values['fridge'])
-    router = st.checkbox("Wi-Fi Router (10W, 24x7)", value=values['router'])
-    tv = st.checkbox("TV (100W)", value=values['tv'])
-    tv_hours = st.number_input("Hours/day for TV", 0.0, 24.0, float(values['tv_hours'])) if tv else 0
-    mobile_count = st.number_input("Mobile Chargers (10W): Count", 0, 10, values['mobile_count'])
-    mobile_hours = st.number_input("Hours/day for Mobile Charging", 0.0, 24.0, float(values['mobile_hours'])) if mobile_count > 0 else 0
-    laptop_count = st.number_input("Laptops (60W): Count", 0, 5, values['laptop_count'])
-    laptop_hours = st.number_input("Hours/day for Laptops", 0.0, 24.0, float(values['laptop_hours'])) if laptop_count > 0 else 0
-    ac = st.checkbox("Air Conditioner (1500W)", value=values['ac'])
-    ac_hours = st.number_input("Hours/day for AC", 0.0, 24.0, float(values['ac_hours'])) if ac else 0
-    washing = st.checkbox("Washing Machine (500W)", value=values['washing'])
-    washing_hours = st.number_input("Hours/day for Washing Machine", 0.0, 4.0, float(values['washing_hours'])) if washing else 0
-    ro = st.checkbox("Water Purifier (RO - 50W)", value=values['ro'])
-    ro_hours = st.number_input("Hours/day for RO", 0.0, 24.0, float(values['ro_hours'])) if ro else 0
-    oven = st.checkbox("Microwave/Oven (1200W)", value=values['oven'])
-    oven_hours = st.number_input("Minutes/day for Oven", 0.0, 60.0, float(values['oven_hours'])) if oven else 0
+    with st.expander("Appliance Selection"):
+       fan_count = st.number_input("Ceiling Fans (75W): Count", 0, 10, values['fan_count'])
+       fan_hours = st.number_input("Hours/day for Fans", 0.0, 24.0, float(values['fan_hours']))
+       bulb_count = st.number_input("LED Bulbs (9W): Count", 0, 20, values['bulb_count'])
+       bulb_hours = st.number_input("Hours/day for Bulbs", 0.0, 24.0, float(values['bulb_hours']))
+       fridge = st.checkbox("Refrigerator (150W, 24x7)", value=values['fridge'])
+       router = st.checkbox("Wi-Fi Router (10W, 24x7)", value=values['router'])
+       tv = st.checkbox("TV (100W)", value=values['tv'])
+       tv_hours = st.number_input("Hours/day for TV", 0.0, 24.0, float(values['tv_hours'])) if tv else 0
+       mobile_count = st.number_input("Mobile Chargers (10W): Count", 0, 10, values['mobile_count'])
+       mobile_hours = st.number_input("Hours/day for Mobile Charging", 0.0, 24.0, float(values['mobile_hours'])) if mobile_count > 0 else 0
+       laptop_count = st.number_input("Laptops (60W): Count", 0, 5, values['laptop_count'])
+       laptop_hours = st.number_input("Hours/day for Laptops", 0.0, 24.0, float(values['laptop_hours'])) if laptop_count > 0 else 0
+       ac = st.checkbox("Air Conditioner (1500W)", value=values['ac'])
+       ac_hours = st.number_input("Hours/day for AC", 0.0, 24.0, float(values['ac_hours'])) if ac else 0
+       washing = st.checkbox("Washing Machine (500W)", value=values['washing'])
+       washing_hours = st.number_input("Hours/day for Washing Machine", 0.0, 4.0, float(values['washing_hours'])) if washing else 0
+       ro = st.checkbox("Water Purifier (RO - 50W)", value=values['ro'])
+       ro_hours = st.number_input("Hours/day for RO", 0.0, 24.0, float(values['ro_hours'])) if ro else 0
+       oven = st.checkbox("Microwave/Oven (1200W)", value=values['oven'])
+       oven_hours = st.number_input("Minutes/day for Oven", 0.0, 60.0, float(values['oven_hours'])) if oven else 0
 
-    user_unit_rate = st.number_input("Your grid electricity rate (Rs/unit):", min_value=1.0, value=8.0)
-    area_avail = st.number_input("Available installation area (sq. meters):", min_value=1)
+       user_unit_rate = st.number_input("Your grid electricity rate (Rs/unit):", min_value=1.0, value=8.0)
+       area_avail = st.number_input("Available installation area (sq. meters):", min_value=1)
 
     if st.button("Estimate Based on Appliances"):
         daily_energy_wh = (
