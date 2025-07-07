@@ -1,5 +1,7 @@
 import streamlit as st
 import math
+import re
+import pandas as pd
 
 # Initialize session state variables
 if 'start' not in st.session_state:
@@ -90,22 +92,48 @@ if mode == "Monthly Units Estimator":
         st.session_state.estimation_done = True
         st.session_state['required_kw'] = required_kw
         st.session_state['monthly_energy_used'] = energy_Kwh
-        report = f"""
-Smart Solar System Estimation Report (Monthly Units Mode)
+        st.markdown("---")
+        st.subheader("📥 Download Estimation Report")
 
-📍 Location: {selected_city}
-☀️ Sun Hours: {sun_hours}
-📅 Monthly Energy Used: {monthly_units_input} kWh
-🔋 Required Solar Size: {required_kw} kW
-🏠 Area Needed: {area_needed} sq. meters
-💸 Estimated System Cost: ₹{cost_estimate}
-🔋 Battery: {num_150ah_batteries} x 150Ah (12V)
-📂 Usable Battery Capacity (80% DoD): {usable_battery_kwh} kWh
-📈 Monthly Grid Bill: ₹{monthly_grid_cost}
-💰 Monthly Savings: ₹{monthly_grid_cost}
-⏳ Payback Period: {payback_years} years
-"""
-        st.download_button("📥 Download Full Report", data=report, file_name="solar_estimate_monthly.txt")
+        # Text Report
+        report_txt = f"""
+        Smart Solar System Estimation Report
+-----------------------------------
+       📍 Location: {selected_city}
+        ☀ Sun Hours: {sun_hours} hours/day
+
+       📊 Bill-Based Estimation:
+       - Monthly Bill: ₹ {monthly_bill:,.0f}
+       - Electricity Rate: ₹ {unit_rate}/unit
+       - Estimated Annual Units: {yearly_units:.1f} kWh
+       - Suggested Solar Size: {system_kw} kW
+       - Area Needed: {area_needed} sq. meters
+       - Estimated Cost: ₹ {total_cost:,.0f}
+
+       💰 Financials:
+        - Monthly Savings: ₹ {monthly_savings:,.0f}
+        - Payback Period: {payback_years} years
+           """
+
+        st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_bill.txt")
+
+        # CSV Report
+        data = {
+            "Location": [selected_city],
+            "Sun Hours": [sun_hours],
+            "Monthly Bill (₹)": [monthly_bill],
+            "Rate (₹/unit)": [unit_rate],
+            "Yearly Units": [yearly_units],
+            "Suggested kW": [system_kw],
+            "Area (sqm)": [area_needed],
+            "Cost (₹)": [total_cost],
+            "Savings (₹/month)": [monthly_savings],
+            "Payback (yrs)": [payback_years]
+        }
+
+        df = pd.DataFrame(data)
+        csv_data = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📊 Download CSV Report", data=csv_data, file_name="solar_estimate_bill.csv", mime='text/csv')
         
 
 
@@ -217,51 +245,104 @@ elif mode == "Appliance-Based Estimator":
 
         st.session_state['required_kw'] = required_kw
         st.session_state['appliance_energy_used'] = appliance_energy_used
-        report = f"""
-Smart Solar System Estimation Report (Appliance-Based Mode)
+       st.markdown("---")
+        st.subheader("📥 Download Estimation Report")
 
-📍 Location: {selected_city}
-☀️ Sun Hours: {sun_hours}
-📅 Monthly Energy Required: {appliance_energy_used} kWh
-🔋 Required Solar Size: {required_kw} kW
-🏠 Area Needed: {round(required_kw * area_per_kw, 2)} sq. meters
-💸 Estimated System Cost: ₹{round(required_kw * cost_per_kw)}
-📂 Usable Battery Capacity (80% DoD): {round((appliance_energy_used / 30) / 0.8, 2)} kWh
-🔋 Battery: {math.ceil(((appliance_energy_used / 30) / 0.8 * 1000) / 12 / 150)} x 150Ah (12V)
-"""
+        # Prepare text report
+        report_txt = f"""
+        Smart Solar System Estimation Report
+        -----------------------------------
+    📍 Location: {selected_city}
+     ☀ Sun Hours: {sun_hours} hours/day
+     🏠 Household Type: {preset}
 
-        st.download_button("📥 Download Full Report", data=report, file_name="solar_estimate_appliances.txt")
+     📊 Appliance-Based Energy Use:
+     - Estimated Monthly Usage: {monthly_energy_kwh} kWh
+     - Required Solar Size: {required_kw} kW
+     - Required Area: {area_needed} sq. meters
+     - Estimated Solar Cost: ₹ {cost_estimate:,.0f}
+
+    🔋 Battery Backup Suggestion:
+     - Daily Usage: {daily_energy_kwh:.2f} kWh
+     - Usable Battery Required: {usable_battery_kwh:.2f} kWh
+     - Suggested Batteries: {num_150ah_batteries} x 150Ah (12V)
+
+     💰 Financials:
+     - Monthly Grid Cost: ₹ {monthly_grid_cost:,.0f}
+     - Monthly Savings: ₹ {monthly_grid_cost:,.0f}
+     - Payback Period: {payback_years} years
+         """
+
+        st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate.txt")
+
+        # Prepare CSV report
+        data = {
+            "Location": [selected_city],
+            "Sun Hours": [sun_hours],
+            "Preset": [preset],
+            "Monthly Usage (kWh)": [monthly_energy_kwh],
+            "Required kW": [required_kw],
+            "Required Area (sqm)": [area_needed],
+            "Solar Cost (₹)": [cost_estimate],
+            "Battery Daily kWh": [daily_energy_kwh],
+            "Usable Battery (kWh)": [usable_battery_kwh],
+            "150Ah Batteries": [num_150ah_batteries],
+            "Monthly Grid Bill (₹)": [monthly_grid_cost],
+            "Payback (yrs)": [payback_years]
+        }
+
+        df = pd.DataFrame(data)
+        csv_data = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📊 Download CSV Report", data=csv_data, file_name="solar_estimate.csv", mime='text/csv')
 
 
 # -------------------- INSTALLERS --------------------
-if st.session_state.estimation_done:
-    st.markdown("### 🛠 Recommended Solar Installers Near You")
-    installers = [
-        {"name": "SolarPro Energy", "price": 52000, "warranty": "10 years", "rating": 4.5},
-        {"name": "SunBright Solar", "price": 55000, "warranty": "12 years", "rating": 4.3},
-        {"name": "GreenSpark Installers", "price": 50000, "warranty": "8 years", "rating": 4.2},
-    ]
+installers = [
+    {"name": "SolarTech Pvt Ltd", "rate": 52000, "warranty": "10 Years", "rating": 4.6},
+    {"name": "SunPro Installers", "rate": 55000, "warranty": "12 Years", "rating": 4.8},
+    {"name": "BrightFuture Solar", "rate": 50000, "warranty": "8 Years", "rating": 4.5}
+]
 
-    for idx, installer in enumerate(installers):
-        st.markdown(f"**{installer['name']}**  \n💰 ₹{installer['price']}/kW  \n🔹 {installer['warranty']}  \n⭐ {installer['rating']} / 5")
-        if st.button(f"📝 Get Estimate from {installer['name']}", key=f"installer_button_{idx}"):
-            st.session_state.selected_installer = installer
-        st.markdown("---")
+st.markdown("---")
+st.subheader("🔧 Recommended Solar Installers")
 
-    selected_installer = st.session_state.get("selected_installer")
-    if selected_installer:
-        st.markdown(f"### 📞 Installer Contact Form for *{selected_installer['name']}*")
-        name = st.text_input("Full Name")
-        phone = st.text_input("Phone Number")
-        email = st.text_input("Email Address")
-        location = st.text_input("Your Location", selected_city)
-        required_kw = st.session_state.get("required_kw", 0)
-        energy_used = st.session_state.get("monthly_energy_used") if mode == "Monthly Units Estimator" else st.session_state.get("appliance_energy_used", 0)
-        st.markdown(f"*Estimated System Size:* {required_kw:.2f} kW")
-        st.markdown(f"*Estimated Monthly Usage:* {energy_used:.2f} kWh")
+selected_installer = st.session_state.get("selected_installer", None)
+
+for idx, installer in enumerate(installers):
+    with st.container():
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            st.markdown(f"""
+                ### {installer['name']}
+                💰 ₹{installer['rate']}/kW  
+                🛡 {installer['warranty']}  
+                ⭐ {installer['rating']} / 5
+            """)
+        with col2:
+            if st.button("📩 Get Quote", key=f"quote_{idx}"):
+                st.session_state.selected_installer = installer["name"]
+                selected_installer = installer["name"]
+        # Show contact form only after installer is selected
+if selected_installer:
+    with st.expander(f"📩 Fill your details to get a quote from {selected_installer}"):
+        name = st.text_input("👤 Full Name")
+        phone = st.text_input("📞 Phone Number")
+        email = st.text_input("📧 Email Address")
+        location = st.text_input("📍 Your Location (City or Area)", selected_city)
+
+        st.markdown(f"📦 *Estimated System Size:* {required_kw} kW")
+        st.markdown(f"⚡ *Estimated Monthly Usage:* {monthly_energy_kwh} kWh")
+
         if st.button("Submit Lead"):
-            st.success("✅ Your request has been submitted! We'll connect you with the installer shortly.")
-            st.session_state.selected_installer = None
+            if not name or not phone or not email:
+                st.error("❌ Please fill in all required fields.")
+            elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                st.warning("⚠ Please enter a valid email address.")
+            else:
+                with st.spinner("Submitting your details..."):
+                    # (Here you can add code to save to Google Sheets or Firebase)
+                    st.success("✅ Your request has been submitted! We'll connect you with the installer shortly.")
+                    st.session_state.selected_installer = None  # Reset after submission
 
 # FOOTER
 st.markdown("---")
