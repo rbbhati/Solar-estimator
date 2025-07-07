@@ -15,8 +15,7 @@ if not st.session_state.start:
     st.subheader("Make smarter solar decisions in minutes ⚡")
     st.write("""
         Welcome to the app❤️..
-        This app helps you estimate the size, cost, and benefits of installing a solar system —
-        based on your appliances or monthly electricity usage.
+        Estimate your solar needs instantly & connect with installers.
     """)
     st.write("You'll also get a suggestion for battery backup and savings comparison. 💰")
 
@@ -55,7 +54,7 @@ if prev_mode != mode:
 
 # -------------------- MODE 1 --------------------
 if mode == "Monthly Units Estimator":
-    st.header("📈 Monthly Units Estimator")
+    st.expander("📈 Monthly Units Estimator")
     monthly_units_input = st.number_input("Enter your average monthly electricity usage (in units/kWh):", min_value=0.0, value=300.0)
     energy_Kwh = monthly_units_input
     unit_rate = st.number_input("Your grid electricity rate (₹/unit):", min_value=1.0, value=8.0)
@@ -112,8 +111,9 @@ Smart Solar System Estimation Report (Monthly Units Mode)
 
 # -------------------- MODE 2 --------------------
 elif mode == "Appliance-Based Estimator":
-    st.header("Appliance-Based Estimator")
-    preset = st.selectbox("Choose Household Type:", [
+  st.header("Appliance-Based Estimator")
+  with st.expander("Choose Home Type & Presets"):
+    preset = st.selectbox("select Household Type:", [
         "Custom (Manual Entry)",
         "Basic Rural Home",
         "Urban Middle-Class Flat",
@@ -141,7 +141,7 @@ elif mode == "Appliance-Based Estimator":
                            laptop_hours=4, ac=True, ac_hours=5, washing=True, washing_hours=1,
                            ro=True, ro_hours=2, oven=True, oven_hours=30))
 
-    st.subheader("Appliance Selection")
+    with st.expander("Appliance Selection")
     fan_count = st.number_input("Ceiling Fans (75W): Count", 0, 10, values['fan_count'])
     fan_hours = st.number_input("Hours/day for Fans", 0.0, 24.0, float(values['fan_hours']))
     bulb_count = st.number_input("LED Bulbs (9W): Count", 0, 20, values['bulb_count'])
