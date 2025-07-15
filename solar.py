@@ -129,6 +129,9 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
     st.session_state['monthly_energy_used'] = monthly_units_input
 
     # TXT Report
+def generate_report():
+    selected_city = st.session_state.get('selected_city', 'Unknown Location')
+    sun_hours = st.session_state.get('sun_hours', 0)
     report_txt = f""" 
 Smart Solar System Estimation Report
 -----------------------------------
@@ -309,6 +312,9 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
     st.session_state['appliance_energy_used'] = monthly_energy_kwh
 
    # TXT Report
+def generate_report():
+    selected_city = st.session_state.get('selected_city', 'Unknown Location')
+    sun_hours = st.session_state.get('sun_hours', 0)
 report_txt = f"""Smart Solar System Estimation Report
 -----------------------------------
  Location: {selected_city}  
