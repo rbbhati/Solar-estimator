@@ -4,6 +4,18 @@ import re
 import pandas as pd
 
 # Initialize session state
+if 'step' not in st.session_state:
+    st.session_state.step = 0
+
+if 'mode' not in st.session_state:
+    st.session_state.mode = None
+
+# Navigation functions
+def next_step():
+    st.session_state.step += 1
+
+def prev_step():
+    st.session_state.step -= 1
 if 'start' not in st.session_state:
     st.session_state.start = False
 if 'estimation_done' not in st.session_state:
@@ -43,20 +55,46 @@ area_per_kw = 10
 cost_per_kw = 55000
 
 # Mode switcher
-mode = st.radio("Choose Estimation Mode:", ["Monthly Units Estimator", "Appliance-Based Estimator"])
-if st.session_state.get("prev_mode") != mode:
-    st.session_state.estimation_done = False
-    st.session_state.selected_installer = None
-    st.session_state.prev_mode = mode
+# ---------------------- STEP 0: Mode Selection -------------------------
+if 'step' not in st.session_state:
+    st.session_state.step = 0
+if 'mode' not in st.session_state:
+    st.session_state.mode = None
+def next_step(): st.session_state.step += 1
+def prev_step(): st.session_state.step -= 1
 
+# Step 0: Choose Mode
+if st.session_state.step == 0:
+    st.title("Solar Rooftop Estimator")
+    st.subheader("Step 1: Choose Estimation Mode")
+
+    st.session_state.mode = st.radio("Choose Estimation Mode:", 
+                                     ["Monthly Units Estimator", "Appliance-Based Estimator"])
+
+    if st.button("Next ➡"):
+        next_step()
 # ---------------- MODE 1 ------------------
-if mode == "Monthly Units Estimator":
-    st.expander("📈 Monthly Units Estimator", expanded=True)
+elif st.session_state.step == 1 and
+st.session_state.mode == "Monthly Units Estimator":
+    st.subheader("Step 2: Monthly Units Estimation")
+    with st.expander("📈 Monthly Units Estimator", expanded=True)
     monthly_units_input = st.number_input("Enter your average monthly electricity usage (in units/kWh):", min_value=0.0, value=300.0)
     unit_rate = st.number_input("Your grid electricity rate (₹/unit):", min_value=1.0, value=8.0)
     area_avail = st.number_input("Available installation area (sq. meters):", min_value=1)
+    st.session_state.monthly_units_input = monthly_units_input
+        st.session_state.unit_rate = unit_rate
+        st.session_state.area_avail = area_avail
 
-    if st.button("Estimate"):
+    # Navigation buttons
+    col1, col2 = st.columns(2)
+    with col1:
+        st.button("⬅ Back", on_click=prev_step)
+    with col2:
+        st.button("Next ➡", on_click=next_step)
+
+elif st.session_state.step == 2 and
+st.session_state.mode == "Monthly Units Estimator":
+    st.subheader("Step 3: Your Estimation Results")
         daily_energy_kwh = round(monthly_units_input / 30, 2)
         required_kw = round(monthly_units_input / (solar_output_per_kw / 12), 2)
         area_needed = round(required_kw * area_per_kw, 2)
@@ -127,6 +165,7 @@ Smart Solar System Estimation Report
             "Payback (yrs)": [payback_years]
         })
         st.download_button("📊 Download CSV Report", data=df.to_csv(index=False).encode('utf-8'), file_name="solar_estimate_bill.csv", mime='text/csv')
+        st.button("⬅ Back", on_click=prev_step) 
 
 # ---------------- MODE 2 ------------------
 elif mode == "Appliance-Based Estimator":
@@ -180,8 +219,16 @@ elif mode == "Appliance-Based Estimator":
         oven_hours = st.number_input("Minutes/day for Oven", 0.0, 60.0, float(values['oven_hours'])) if oven else 0
         user_unit_rate = st.number_input("Your grid electricity rate (Rs/unit):", min_value=1.0, value=8.0)
         area_avail = st.number_input("Available installation area (sq. meters):", min_value=1)
+        # Navigation buttons
+    col1, col2 = st.columns(2)
+    with col1:
+        st.button("⬅ Back", on_click=prev_step)
+    with col2:
+        st.button("Next ➡", on_click=next_step)
 
-    if st.button("Estimate Based on Appliances"):
+    elif st.session_state.step == 2 and
+    st.session_state.mode == "Appliance-Based Estimator":
+        st.subheader("Step 3: Appliance-Based Estimation Result")
         daily_energy_wh = (
             fan_count * 75 * fan_hours + bulb_count * 9 * bulb_hours +
             (150 * 24 if fridge else 0) + (10 * 24 if router else 0) +
@@ -260,6 +307,7 @@ Smart Solar System Estimation Report
             "Payback (yrs)": [payback_years]
         })
         st.download_button("📊 Download CSV Report", data=df.to_csv(index=False).encode('utf-8'), file_name="solar_estimate.csv", mime='text/csv')
+        st.button("⬅ Back", on_click=prev_step)
 
 # ---------------- INSTALLERS ------------------
 installers = [
