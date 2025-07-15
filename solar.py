@@ -337,29 +337,32 @@ st.download_button(
     data=report_txt.encode('utf-8'),  # Encode as UTF-8 to ensure compatibility
     file_name="solar_estimate_appliance.txt"
 )
+# CSV Report
+df = pd.DataFrame({
+    "Location": [selected_city],  # ← Aligned with 'df = pd.DataFrame('
+    "Sun Hours": [sun_hours],
+    "Preset": [preset],
+    "Monthly Usage (kWh)": [monthly_energy_kwh],
+    "Required kW": [required_kw],
+    "Required Area (sqm)": [area_needed],
+    "Solar Cost (₹)": [cost_estimate],
+    "Battery Daily kWh": [daily_energy_kwh],
+    "Usable Battery (kWh)": [usable_battery_kwh],
+    "150Ah Batteries": [num_150ah_batteries],
+    "Monthly Grid Bill (₹)": [monthly_grid_cost],
+    "Payback (yrs)": [payback_years]
+})  # ← Closing parenthesis aligns with 'df = pd.DataFrame('
 
+st.download_button(
+    "📊 Download CSV Report",
+    data=df.to_csv(index=False).encode('utf-8'),
+    file_name="solar_estimate_appliance.csv",
+    mime='text/csv'
+)
 
-    # CSV Report
-    df = pd.DataFrame({
-        "Location": [selected_city],
-        "Sun Hours": [sun_hours],
-        "Preset": [preset],
-        "Monthly Usage (kWh)": [monthly_energy_kwh],
-        "Required kW": [required_kw],
-        "Required Area (sqm)": [area_needed],
-        "Solar Cost (₹)": [cost_estimate],
-        "Battery Daily kWh": [daily_energy_kwh],
-        "Usable Battery (kWh)": [usable_battery_kwh],
-        "150Ah Batteries": [num_150ah_batteries],
-        "Monthly Grid Bill (₹)": [monthly_grid_cost],
-        "Payback (yrs)": [payback_years]
-    })
-    st.download_button("📊 Download CSV Report", data=df.to_csv(index=False).encode('utf-8'),
-                       file_name="solar_estimate_appliance.csv", mime='text/csv')
-
-    st.button("⬅ Back", on_click=prev_step, key="appl_result_back")
-    if st.button("🚀 Connect with Installer", key="appl_go_to_installer"):
-        st.session_state.step = 3
+st.button("⬅ Back", on_click=prev_step, key="appl_result_back")
+if st.button("🚀 Connect with Installer", key="appl_go_to_installer"):
+    st.session_state.step = 3  # ← Indent with 4 spaces (not 8)
 
 # ---------------- STEP 3: Installer List ----------------
 elif st.session_state.step == 3:
