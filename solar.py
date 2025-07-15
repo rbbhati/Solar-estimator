@@ -132,10 +132,11 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
     report_txt = f""" 
 Smart Solar System Estimation Report
 -----------------------------------
-📍 Location: {selected_city}
-☀ Sun Hours: {sun_hours} hours/day
+\U0001F4CD Location: {selected_city}#📍
+\U00002600 Sun Hours: {sun_hours} hours/day#☀
 
-📊 Bill-Based Estimation:
+
+\U0001F4CA Bill-Based Estimation:#📊
 - Monthly Bill: ₹ {monthly_grid_cost}
 - Electricity Rate: ₹ {unit_rate}/unit
 - Estimated Annual Units: {monthly_units_input * 12:.1f} kWh
@@ -143,10 +144,15 @@ Smart Solar System Estimation Report
 - Area Needed: {area_needed} sq. meters
 - Estimated Cost: ₹ {cost_estimate}
 
-💰 Financials:
+\U0001F50B Battery Backup Suggestion:#🔋
+- Daily Usage: {daily_energy_kwh:.2f} kWh
+- Usable Battery Required: {usable_battery_kwh:.2f} kWh
+- Suggested Batteries: {num_150ah_batteries} x 150Ah (12V)
+
+\U0001F4B0 financials:#💰
 - Monthly Savings: ₹ {monthly_grid_cost}
 - Payback Period: {payback_years} years
-\"""
+"""
     st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_bill.txt")
 
     # CSV Report
@@ -306,22 +312,22 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
    # TXT Report
 report_txt = f"""Smart Solar System Estimation Report
 -----------------------------------
-📍 Location: {selected_city}
-☀ Sun Hours: {sun_hours} hours/day
-🏠 Household Type: {preset}
+\U0001F4CD Location: {selected_city}  # 📍
+\U00002600 Sun Hours: {sun_hours} hours/day  # ☀
+\U0001F3E0 Household Type: {preset}  # 🏠
 
-📊 Appliance-Based Energy Use:
-- Estimated Monthly Usage: {monthly_energy_kwh} kWh
+\U0001F4CA Appliance-Based Energy Use:#📊
+- Estimated Monthly Usage: {monthly_energy_kwh} kWh #📊
 - Required Solar Size: {required_kw} kW
 - Required Area: {area_needed} sq. meters
 - Estimated Solar Cost: ₹ {cost_estimate}
 
-🔋 Battery Backup Suggestion:
+\U0001F50B Battery Backup Suggestion:#🔋
 - Daily Usage: {daily_energy_kwh:.2f} kWh
 - Usable Battery Required: {usable_battery_kwh:.2f} kWh
 - Suggested Batteries: {num_150ah_batteries} x 150Ah (12V)
 
-💰 Financials:
+\U0001F4B0 Financials:#💰
 - Monthly Grid Cost: ₹ {monthly_grid_cost}
 - Monthly Savings: ₹ {monthly_grid_cost}
 - Payback Period: {payback_years} years
