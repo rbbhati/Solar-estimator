@@ -303,29 +303,29 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
     st.session_state['appliance_energy_used'] = monthly_energy_kwh
 
     # TXT Report
-    report_txt = f"""
+  report_txt = f"""
 Smart Solar System Estimation Report
 -----------------------------------
-    📍 Location: {selected_city}
-    ☀ Sun Hours: {sun_hours} hours/day
-    🏠 Household Type: {preset}
+📍 Location: {selected_city}
+☀ Sun Hours: {sun_hours} hours/day
+🏠 Household Type: {preset}
 
-    📊 Appliance-Based Energy Use:
-    - Estimated Monthly Usage: {monthly_energy_kwh} kWh
-    - Required Solar Size: {required_kw} kW
-    - Required Area: {area_needed} sq. meters
-    - Estimated Solar Cost: ₹ {cost_estimate}
+📊 Appliance-Based Energy Use:
+- Estimated Monthly Usage: {monthly_energy_kwh} kWh
+- Required Solar Size: {required_kw} kW
+- Required Area: {area_needed} sq. meters
+- Estimated Solar Cost: ₹ {cost_estimate}
 
-    🔋 Battery Backup Suggestion:
-    - Daily Usage: {daily_energy_kwh:.2f} kWh
-    - Usable Battery Required: {usable_battery_kwh:.2f} kWh
-    - Suggested Batteries: {num_150ah_batteries} x 150Ah (12V)
+🔋 Battery Backup Suggestion:
+- Daily Usage: {daily_energy_kwh:.2f} kWh
+- Usable Battery Required: {usable_battery_kwh:.2f} kWh
+- Suggested Batteries: {num_150ah_batteries} x 150Ah (12V)
 
-    💰 Financials:
-    - Monthly Grid Cost: ₹ {monthly_grid_cost}
-    - Monthly Savings: ₹ {monthly_grid_cost}
-    - Payback Period: {payback_years} years
-   """
+💰 Financials:
+- Monthly Grid Cost: ₹ {monthly_grid_cost}
+- Monthly Savings: ₹ {monthly_grid_cost}
+- Payback Period: {payback_years} years
+"""
     st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_appliance.txt")
 
     # CSV Report
