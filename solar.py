@@ -74,65 +74,108 @@ if st.session_state.step == 0:
     if st.button("Next ➡"):
         next_step()
 # ---------------- MODE 1 ------------------
+# ------------------ STEP 1: User Inputs ------------------
 elif (st.session_state.step == 1 and
-st.session_state.mode == "Monthly Units Estimator"):
+      st.session_state.mode == "Monthly Units Estimator"):
+
     st.subheader("Step 2: Monthly Units Estimation")
-    with st.expander("📈 Monthly Units Estimator", expanded=True)
-    monthly_units_input = st.number_input("Enter your average monthly electricity usage (in units/kWh):", min_value=0.0, value=300.0)
-    unit_rate = st.number_input("Your grid electricity rate (₹/unit):", min_value=1.0, value=8.0)
-    area_avail = st.number_input("Available installation area (sq. meters):", min_value=1)
-    st.session_state.monthly_units_input = monthly_units_input
+
+    # 🔹 City + Sun Hours Input
+    city_sun_hours = {
+        "Delhi": 5.5, "Mumbai": 4.5, "Chennai": 5.3,
+        "Bangalore": 5.2, "Hyderabad": 5.4, "Ahmedabad": 5.6,
+        "Kolkata": 4.8, "Jaipur": 5.7, "Lucknow": 5.2,
+        "Custom (Enter manually)": None
+    }
+
+    selected_city = st.selectbox("📍 Select Your City/Location:", list(city_sun_hours.keys()))
+    sun_hours = st.number_input("🌞 Enter average sun hours per day:", min_value=1.0, max_value=7.0, value=5.0) \
+        if selected_city == "Custom (Enter manually)" else city_sun_hours[selected_city]
+    solar_output_per_kw = round(sun_hours * 365, 1)
+
+    # 🔹 Store in session
+    st.session_state.selected_city = selected_city
+    st.session_state.sun_hours = sun_hours
+    st.session_state.solar_output_per_kw = solar_output_per_kw
+
+    # 🔹 Monthly Inputs
+    with st.expander("📈 Monthly Units Estimator", expanded=True):
+        monthly_units_input = st.number_input("Enter your average monthly electricity usage (in units/kWh):", min_value=0.0, value=300.0)
+        unit_rate = st.number_input("Your grid electricity rate (₹/unit):", min_value=1.0, value=8.0)
+        area_avail = st.number_input("Available installation area (sq. meters):", min_value=1)
+
+        st.session_state.monthly_units_input = monthly_units_input
         st.session_state.unit_rate = unit_rate
         st.session_state.area_avail = area_avail
 
-    # Navigation buttons
+    # 🔹 Navigation buttons
     col1, col2 = st.columns(2)
     with col1:
         st.button("⬅ Back", on_click=prev_step)
     with col2:
         st.button("Next ➡", on_click=next_step)
 
+
+# ------------------ STEP 2: Results ------------------
 elif (st.session_state.step == 2 and
-st.session_state.mode == "Monthly Units Estimator"):
+      st.session_state.mode == "Monthly Units Estimator"):
+
     st.subheader("Step 3: Your Estimation Results")
-        daily_energy_kwh = round(monthly_units_input / 30, 2)
-        required_kw = round(monthly_units_input / (solar_output_per_kw / 12), 2)
-        area_needed = round(required_kw * area_per_kw, 2)
-        cost_estimate = round(required_kw * cost_per_kw)
-        monthly_grid_cost = round(monthly_units_input * unit_rate)
-        payback_years = round(cost_estimate / (monthly_grid_cost * 12), 1)
-        usable_battery_kwh = round(daily_energy_kwh / 0.8, 2)
-        battery_capacity_ah = round((usable_battery_kwh * 1000) / 12, 0)
-        num_150ah_batteries = math.ceil(battery_capacity_ah / 150)
 
-        # Assign report variables
-        monthly_bill = monthly_grid_cost
-        system_kw = required_kw
-        yearly_units = monthly_units_input * 12
-        total_cost = cost_estimate
-        monthly_savings = monthly_grid_cost
+    # 🔹 Load from session
+    selected_city = st.session_state.selected_city
+    sun_hours = st.session_state.sun_hours
+    solar_output_per_kw = st.session_state.solar_output_per_kw
 
-        st.success(f"📅 Monthly Energy Used: *{monthly_units_input} kWh*")
-        st.write(f"⚡ Suggested Solar Panel Size: *{required_kw} kW*")
-        st.write(f"🌍 Area Needed: *{area_needed} sq. meters*")
-        st.write(f"💸 Estimated Solar Cost: *₹{cost_estimate}*")
+    monthly_units_input = st.session_state.monthly_units_input
+    unit_rate = st.session_state.unit_rate
+    area_avail = st.session_state.area_avail
 
-        st.markdown("---")
-        st.write("Battery Backup Suggestion")
-        st.write(f"🔌 Daily backup energy needed: *{daily_energy_kwh} kWh*")
-        st.write(f"📂 Usable battery capacity required (80% DoD): *{usable_battery_kwh} kWh*")
-        st.write(f"🔋 Suggested Battery: *{num_150ah_batteries} x 150Ah (12V)*")
+    # 🔹 Constants
+    area_per_kw = 10
+    cost_per_kw = 50000
 
-        st.markdown("---")
-        st.metric("Monthly Grid Bill", f"₹{monthly_grid_cost}")
-        st.metric("💰 Monthly Savings", f"₹{monthly_grid_cost}")
-        st.metric("⏳ Payback Period", f"{payback_years} years")
+    # 🔹 Calculations
+    daily_energy_kwh = round(monthly_units_input / 30, 2)
+    required_kw = round(monthly_units_input / (solar_output_per_kw / 12), 2)
+    area_needed = round(required_kw * area_per_kw, 2)
+    cost_estimate = round(required_kw * cost_per_kw)
+    monthly_grid_cost = round(monthly_units_input * unit_rate)
+    payback_years = round(cost_estimate / (monthly_grid_cost * 12), 1)
+    usable_battery_kwh = round(daily_energy_kwh / 0.8, 2)
+    battery_capacity_ah = round((usable_battery_kwh * 1000) / 12, 0)
+    num_150ah_batteries = math.ceil(battery_capacity_ah / 150)
 
-        st.session_state.estimation_done = True
-        st.session_state['required_kw'] = required_kw
-        st.session_state['monthly_energy_used'] = monthly_units_input
+    # 🔹 Report values
+    monthly_bill = monthly_grid_cost
+    system_kw = required_kw
+    yearly_units = monthly_units_input * 12
+    total_cost = cost_estimate
+    monthly_savings = monthly_grid_cost
 
-        report_txt = f"""
+    st.success(f"📅 Monthly Energy Used: *{monthly_units_input} kWh*")
+    st.write(f"⚡ Suggested Solar Panel Size: *{required_kw} kW*")
+    st.write(f"🌍 Area Needed: *{area_needed} sq. meters*")
+    st.write(f"💸 Estimated Solar Cost: *₹{cost_estimate}*")
+
+    st.markdown("---")
+    st.write("Battery Backup Suggestion")
+    st.write(f"🔌 Daily backup energy needed: *{daily_energy_kwh} kWh*")
+    st.write(f"📂 Usable battery capacity required (80% DoD): *{usable_battery_kwh} kWh*")
+    st.write(f"🔋 Suggested Battery: *{num_150ah_batteries} x 150Ah (12V)*")
+
+    st.markdown("---")
+    st.metric("Monthly Grid Bill", f"₹{monthly_grid_cost}")
+    st.metric("💰 Monthly Savings", f"₹{monthly_grid_cost}")
+    st.metric("⏳ Payback Period", f"{payback_years} years")
+
+    # 🔹 Save for use elsewhere
+    st.session_state.estimation_done = True
+    st.session_state['required_kw'] = required_kw
+    st.session_state['monthly_energy_used'] = monthly_units_input
+
+    # 🔹 Download report
+    report_txt = f"""
 Smart Solar System Estimation Report
 -----------------------------------
 📍 Location: {selected_city}
@@ -150,27 +193,33 @@ Smart Solar System Estimation Report
 - Monthly Savings: ₹ {monthly_savings}
 - Payback Period: {payback_years} years
 """
-        st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_bill.txt")
+    st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_bill.txt")
 
-        df = pd.DataFrame({
-            "Location": [selected_city],
-            "Sun Hours": [sun_hours],
-            "Monthly Bill (₹)": [monthly_bill],
-            "Rate (₹/unit)": [unit_rate],
-            "Yearly Units": [yearly_units],
-            "Suggested kW": [system_kw],
-            "Area (sqm)": [area_needed],
-            "Cost (₹)": [total_cost],
-            "Savings (₹/month)": [monthly_savings],
-            "Payback (yrs)": [payback_years]
-        })
-        st.download_button("📊 Download CSV Report", data=df.to_csv(index=False).encode('utf-8'), file_name="solar_estimate_bill.csv", mime='text/csv')
-        st.button("⬅ Back", on_click=prev_step) 
+    df = pd.DataFrame({
+        "Location": [selected_city],
+        "Sun Hours": [sun_hours],
+        "Monthly Bill (₹)": [monthly_bill],
+        "Rate (₹/unit)": [unit_rate],
+        "Yearly Units": [yearly_units],
+        "Suggested kW": [system_kw],
+        "Area (sqm)": [area_needed],
+        "Cost (₹)": [total_cost],
+        "Savings (₹/month)": [monthly_savings],
+        "Payback (yrs)": [payback_years]
+    })
+    st.download_button("📊 Download CSV Report", data=df.to_csv(index=False).encode('utf-8'), file_name="solar_estimate_bill.csv", mime='text/csv')
+
+    st.button("⬅ Back", on_click=prev_step)
+    if st.button("🚀 Connect with Installer"):
+       st.session_state.step = 3
 
 # ---------------- MODE 2 ------------------
+# -------------------- STEP 1: APPLIANCE INPUT --------------------
 elif (st.session_state.step == 1 and
       st.session_state.mode == "Appliance-Based Estimator"):
-  st.subheader("Step 2: Appliance-Based Estimation")
+
+    st.subheader("Step 2: Appliance-Based Estimation")
+
     with st.expander("Choose Home Type & Presets"):
         preset = st.selectbox("Select Household Type:", [
             "Custom (Manual Entry)", "Basic Rural Home",
@@ -183,7 +232,6 @@ elif (st.session_state.step == 1 and
                   'ac': False, 'ac_hours': 0, 'washing': False, 'washing_hours': 0,
                   'ro': False, 'ro_hours': 0, 'oven': False, 'oven_hours': 0}
 
-        # Preset logic
         if preset == "Basic Rural Home":
             values.update(dict(fan_count=2, fan_hours=6, bulb_count=4, bulb_hours=6, tv=True, tv_hours=3,
                                fridge=True, router=True, mobile_count=2, mobile_hours=2))
@@ -218,57 +266,91 @@ elif (st.session_state.step == 1 and
         ro_hours = st.number_input("Hours/day for RO", 0.0, 24.0, float(values['ro_hours'])) if ro else 0
         oven = st.checkbox("Microwave/Oven (1200W)", value=values['oven'])
         oven_hours = st.number_input("Minutes/day for Oven", 0.0, 60.0, float(values['oven_hours'])) if oven else 0
+
         user_unit_rate = st.number_input("Your grid electricity rate (Rs/unit):", min_value=1.0, value=8.0)
         area_avail = st.number_input("Available installation area (sq. meters):", min_value=1)
-        # Navigation buttons
+
+        # Store in session
+        st.session_state.appliance_inputs = {
+            "preset": preset, "fan_count": fan_count, "fan_hours": fan_hours,
+            "bulb_count": bulb_count, "bulb_hours": bulb_hours, "tv": tv, "tv_hours": tv_hours,
+            "fridge": fridge, "router": router, "mobile_count": mobile_count,
+            "mobile_hours": mobile_hours, "laptop_count": laptop_count, "laptop_hours": laptop_hours,
+            "ac": ac, "ac_hours": ac_hours, "washing": washing, "washing_hours": washing_hours,
+            "ro": ro, "ro_hours": ro_hours, "oven": oven, "oven_hours": oven_hours,
+            "user_unit_rate": user_unit_rate, "area_avail": area_avail
+        }
+
     col1, col2 = st.columns(2)
     with col1:
         st.button("⬅ Back", on_click=prev_step)
     with col2:
         st.button("Next ➡", on_click=next_step)
 
-    elif (st.session_state.step == 2 and
-    st.session_state.mode == "Appliance-Based Estimator"):
-        st.subheader("Step 3: Appliance-Based Estimation Result")
-        daily_energy_wh = (
-            fan_count * 75 * fan_hours + bulb_count * 9 * bulb_hours +
-            (150 * 24 if fridge else 0) + (10 * 24 if router else 0) +
-            (100 * tv_hours if tv else 0) + mobile_count * 10 * mobile_hours +
-            laptop_count * 60 * laptop_hours + (1500 * ac_hours if ac else 0) +
-            (500 * washing_hours if washing else 0) + (50 * ro_hours if ro else 0) +
-            (1200 * oven_hours / 60 if oven else 0)
-        )
-        daily_energy_kwh = daily_energy_wh / 1000
-        monthly_energy_kwh = round(daily_energy_kwh * 30, 2)
-        required_kw = round(monthly_energy_kwh / (solar_output_per_kw / 12), 2)
-        area_needed = round(required_kw * area_per_kw, 2)
-        cost_estimate = round(required_kw * cost_per_kw)
-        monthly_grid_cost = round(monthly_energy_kwh * user_unit_rate)
-        payback_years = round(cost_estimate / (monthly_grid_cost * 12), 1)
-        usable_battery_kwh = round(daily_energy_kwh / 0.8, 2)
-        battery_capacity_ah = round((usable_battery_kwh * 1000) / 12, 0)
-        num_150ah_batteries = math.ceil(battery_capacity_ah / 150)
 
-        st.success(f"Monthly Energy Required: *{monthly_energy_kwh} units (kWh)*")
-        st.write(f"Suggested Solar Panel Size: *{required_kw} kW*")
-        st.write(f"Area Needed: *{area_needed} sq. meters*")
-        st.write(f"Estimated Solar Cost: *Rs {cost_estimate}*")
+# -------------------- STEP 2: RESULTS --------------------
+elif (st.session_state.step == 2 and
+      st.session_state.mode == "Appliance-Based Estimator"):
 
-        st.markdown("---")
-        st.write("Battery Backup Suggestion")
-        st.write(f"Daily backup energy needed: *{daily_energy_kwh} kWh*")
-        st.write(f"Usable battery capacity required (80% DoD): *{usable_battery_kwh} kWh*")
-        st.write(f"Suggested Battery: *{num_150ah_batteries} x 150Ah (12V)*")
+    st.subheader("Step 3: Appliance-Based Estimation Result")
 
-        st.metric("Monthly Grid Bill", f"Rs {monthly_grid_cost}")
-        st.metric("Monthly Savings", f"Rs {monthly_grid_cost}")
-        st.metric("Payback Period", f"{payback_years} years")
+    inputs = st.session_state.appliance_inputs
+    preset = inputs["preset"]
 
-        st.session_state['required_kw'] = required_kw
-        st.session_state['appliance_energy_used'] = monthly_energy_kwh
-        st.session_state.estimation_done = True
+    # Ensure sun hours and location are loaded from session
+    selected_city = st.session_state.selected_city
+    sun_hours = st.session_state.sun_hours
+    solar_output_per_kw = st.session_state.solar_output_per_kw
 
-        report_txt = f"""
+    # Constants
+    cost_per_kw = 50000
+    area_per_kw = 10
+
+    daily_energy_wh = (
+        inputs["fan_count"] * 75 * inputs["fan_hours"] +
+        inputs["bulb_count"] * 9 * inputs["bulb_hours"] +
+        (150 * 24 if inputs["fridge"] else 0) +
+        (10 * 24 if inputs["router"] else 0) +
+        (100 * inputs["tv_hours"] if inputs["tv"] else 0) +
+        inputs["mobile_count"] * 10 * inputs["mobile_hours"] +
+        inputs["laptop_count"] * 60 * inputs["laptop_hours"] +
+        (1500 * inputs["ac_hours"] if inputs["ac"] else 0) +
+        (500 * inputs["washing_hours"] if inputs["washing"] else 0) +
+        (50 * inputs["ro_hours"] if inputs["ro"] else 0) +
+        (1200 * inputs["oven_hours"] / 60 if inputs["oven"] else 0)
+    )
+
+    daily_energy_kwh = daily_energy_wh / 1000
+    monthly_energy_kwh = round(daily_energy_kwh * 30, 2)
+    required_kw = round(monthly_energy_kwh / (solar_output_per_kw / 12), 2)
+    area_needed = round(required_kw * area_per_kw, 2)
+    cost_estimate = round(required_kw * cost_per_kw)
+    monthly_grid_cost = round(monthly_energy_kwh * inputs["user_unit_rate"])
+    payback_years = round(cost_estimate / (monthly_grid_cost * 12), 1)
+    usable_battery_kwh = round(daily_energy_kwh / 0.8, 2)
+    battery_capacity_ah = round((usable_battery_kwh * 1000) / 12, 0)
+    num_150ah_batteries = math.ceil(battery_capacity_ah / 150)
+
+    st.success(f"Monthly Energy Required: *{monthly_energy_kwh} units (kWh)*")
+    st.write(f"Suggested Solar Panel Size: *{required_kw} kW*")
+    st.write(f"Area Needed: *{area_needed} sq. meters*")
+    st.write(f"Estimated Solar Cost: *Rs {cost_estimate}*")
+
+    st.markdown("---")
+    st.write("Battery Backup Suggestion")
+    st.write(f"Daily backup energy needed: *{daily_energy_kwh} kWh*")
+    st.write(f"Usable battery capacity required (80% DoD): *{usable_battery_kwh} kWh*")
+    st.write(f"Suggested Battery: *{num_150ah_batteries} x 150Ah (12V)*")
+
+    st.metric("Monthly Grid Bill", f"Rs {monthly_grid_cost}")
+    st.metric("Monthly Savings", f"Rs {monthly_grid_cost}")
+    st.metric("Payback Period", f"{payback_years} years")
+
+    st.session_state.estimation_done = True
+    st.session_state['required_kw'] = required_kw
+    st.session_state['appliance_energy_used'] = monthly_energy_kwh
+
+    report_txt = f"""
 Smart Solar System Estimation Report
 -----------------------------------
 📍 Location: {selected_city}
@@ -291,24 +373,28 @@ Smart Solar System Estimation Report
 - Monthly Savings: ₹ {monthly_grid_cost}
 - Payback Period: {payback_years} years
 """
-        st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate.txt")
+    st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate.txt")
 
-        df = pd.DataFrame({
-            "Location": [selected_city],
-            "Sun Hours": [sun_hours],
-            "Preset": [preset],
-            "Monthly Usage (kWh)": [monthly_energy_kwh],
-            "Required kW": [required_kw],
-            "Required Area (sqm)": [area_needed],
-            "Solar Cost (₹)": [cost_estimate],
-            "Battery Daily kWh": [daily_energy_kwh],
-            "Usable Battery (kWh)": [usable_battery_kwh],
-            "150Ah Batteries": [num_150ah_batteries],
-            "Monthly Grid Bill (₹)": [monthly_grid_cost],
-            "Payback (yrs)": [payback_years]
-        })
-        st.download_button("📊 Download CSV Report", data=df.to_csv(index=False).encode('utf-8'), file_name="solar_estimate.csv", mime='text/csv')
-        st.button("⬅ Back", on_click=prev_step)
+    df = pd.DataFrame({
+        "Location": [selected_city],
+        "Sun Hours": [sun_hours],
+        "Preset": [preset],
+        "Monthly Usage (kWh)": [monthly_energy_kwh],
+        "Required kW": [required_kw],
+        "Required Area (sqm)": [area_needed],
+        "Solar Cost (₹)": [cost_estimate],
+        "Battery Daily kWh": [daily_energy_kwh],
+        "Usable Battery (kWh)": [usable_battery_kwh],
+        "150Ah Batteries": [num_150ah_batteries],
+        "Monthly Grid Bill (₹)": [monthly_grid_cost],
+        "Payback (yrs)": [payback_years]
+    })
+    st.download_button("📊 Download CSV Report", data=df.to_csv(index=False).encode('utf-8'), file_name="solar_estimate.csv", mime='text/csv')
+
+    st.button("⬅ Back", on_click=prev_step)
+    if st.button("🚀 Connect with Installer"):
+        st.session_state.step = 3
+
 
 # ---------------- INSTALLERS ------------------
 installers = [
@@ -316,8 +402,7 @@ installers = [
     {"name": "SunPro Installers", "rate": 55000, "warranty": "12 Years", "rating": 4.8},
     {"name": "BrightFuture Solar", "rate": 50000, "warranty": "8 Years", "rating": 4.5}
 ]
-
-st.markdown("---")
+elif st.session_state.step == 3:
 st.subheader("🔧 Recommended Solar Installers")
 selected_installer = st.session_state.get("selected_installer")
 
@@ -356,6 +441,12 @@ if selected_installer and st.session_state.estimation_done:
                 with st.spinner("Submitting your details..."):
                     st.success("✅ Your request has been submitted! We'll connect you with the installer shortly.")
                     st.session_state.selected_installer = None
+st.markdown("---")
+col1, col2 = st.columns(2)
+with col1:
+        st.button("⬅ Back to Results", on_click=lambda: st.session_state.update(step=2))
+with col2:
+        st.button("🏁 Finish", on_click=lambda: st.session_state.update(step=0, mode=None))            
 
 # Footer
 st.markdown("---")
