@@ -397,15 +397,14 @@ Smart Solar System Estimation Report
 
 
 # ---------------- INSTALLERS ------------------
-installers = [
-    {"name": "SolarTech Pvt Ltd", "rate": 52000, "warranty": "10 Years", "rating": 4.6},
-    {"name": "SunPro Installers", "rate": 55000, "warranty": "12 Years", "rating": 4.8},
-    {"name": "BrightFuture Solar", "rate": 50000, "warranty": "8 Years", "rating": 4.5}
-]
 elif st.session_state.step == 3:
     st.subheader("Step 4: Connect with a Trusted Solar Installer 🔧")
     st.markdown("Browse verified local installers and submit your details to get a quote.")
-
+    installers = [
+    {"name": "SolarTech Pvt Ltd", "rate": 52000, "warranty": "10 Years", "rating": 4.6},
+    {"name": "SunPro Installers", "rate": 55000, "warranty": "12 Years", "rating": 4.8},
+    {"name": "BrightFuture Solar", "rate": 50000, "warranty": "8 Years", "rating": 4.5}
+    ]
     selected_installer = st.session_state.get("selected_installer")
 
     # List of installer cards
