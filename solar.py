@@ -179,8 +179,7 @@ Smart Solar System Estimation Report
 
 
 # ---------------- MODE 2 ------------------
-if st.session_state.step == 1:  # <-- This was missing!
-    # ---------------- STEP 1: Appliance Mode Input ----------------
+if st.session_state.step == 1:
     if st.session_state.mode == "Appliance-Based Estimator":
         st.subheader("Step 2: Appliance-Based Estimation")
 
@@ -189,8 +188,9 @@ if st.session_state.step == 1:  # <-- This was missing!
                 "Custom (Manual Entry)", "Basic Rural Home",
                 "Urban Middle-Class Flat", "Modern Urban Villa"
             ], key="preset_type")
-        # Default appliance settings
-           values = {'fan_count': 0, 'fan_hours': 0, 'bulb_count': 0, 'bulb_hours': 0,
+
+            # PROPERLY INDENTED DICTIONARY (4 spaces)
+            values = {'fan_count': 0, 'fan_hours': 0, 'bulb_count': 0, 'bulb_hours': 0,
                   'tv': False, 'tv_hours': 0, 'fridge': False, 'router': False,
                   'mobile_count': 0, 'mobile_hours': 0, 'laptop_count': 0, 'laptop_hours': 0,
                   'ac': False, 'ac_hours': 0, 'washing': False, 'washing_hours': 0,
