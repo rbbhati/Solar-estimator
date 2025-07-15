@@ -303,7 +303,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
     st.session_state['appliance_energy_used'] = monthly_energy_kwh
 
     # TXT Report
-  report_txt = f"""
+   report_txt = f"""
 Smart Solar System Estimation Report
 -----------------------------------
 📍 Location: {selected_city}
@@ -325,7 +325,7 @@ Smart Solar System Estimation Report
 - Monthly Grid Cost: ₹ {monthly_grid_cost}
 - Monthly Savings: ₹ {monthly_grid_cost}
 - Payback Period: {payback_years} years
-"""
+\"""
     st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_appliance.txt")
 
     # CSV Report
