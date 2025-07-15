@@ -128,7 +128,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
     st.session_state['monthly_energy_used'] = monthly_units_input
 
     # TXT Report
-    report_txt = f\""" 
+    report_txt = f""" 
 Smart Solar System Estimation Report
 -----------------------------------
 📍 Location: {selected_city}
