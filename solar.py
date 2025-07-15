@@ -302,32 +302,26 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
     st.session_state['required_kw'] = required_kw
     st.session_state['appliance_energy_used'] = monthly_energy_kwh
 
-   # TXT Report
-report_txt = f"""
+     # TXT Report
+    report_txt = f""" 
 Smart Solar System Estimation Report
 -----------------------------------
- Location: {selected_city}
+📍 Location: {selected_city}
 ☀ Sun Hours: {sun_hours} hours/day
-🏠 Household Type: {preset}
 
-📊 Appliance-Based Energy Use:
-- Estimated Monthly Usage: {monthly_energy_kwh} kWh
-- Required Solar Size: {required_kw} kW
-- Required Area: {area_needed} sq. meters
-- Estimated Solar Cost: ₹ {cost_estimate}
-
-🔋 Battery Backup Suggestion:
-- Daily Usage: {daily_energy_kwh:.2f} kWh
-- Usable Battery Required: {usable_battery_kwh:.2f} kWh
-- Suggested Batteries: {num_150ah_batteries} x 150Ah (12V)
+📊 Bill-Based Estimation:
+- Monthly Bill: ₹ {monthly_grid_cost}
+- Electricity Rate: ₹ {unit_rate}/unit
+- Estimated Annual Units: {monthly_units_input * 12:.1f} kWh
+- Suggested Solar Size: {required_kw} kW
+- Area Needed: {area_needed} sq. meters
+- Estimated Cost: ₹ {cost_estimate}
 
 💰 Financials:
-- Monthly Grid Cost: ₹ {monthly_grid_cost}
 - Monthly Savings: ₹ {monthly_grid_cost}
 - Payback Period: {payback_years} years
-"""
-
-st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_appliance.txt")
+\"""
+    st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_appliance.txt")
 
     # CSV Report
     df = pd.DataFrame({
