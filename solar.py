@@ -326,11 +326,11 @@ Appliance-Based Energy Use:
 """
     
     # Download buttons
-    st.download_button(
+st.download_button(
         "📄 Download TXT Report",
         data=generate_report().encode('utf-8'),
         file_name="solar_estimate_appliance.txt"
-    )
+ )
 # CSV Report
 df = pd.DataFrame({
     "Location": [selected_city],  # ← Aligned with 'df = pd.DataFrame('
