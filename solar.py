@@ -326,10 +326,12 @@ report_txt = f"""Smart Solar System Estimation Report
 - Monthly Savings: ₹ {monthly_grid_cost}
 - Payback Period: {payback_years} years
 """
+st.download_button(
+    "📄 Download TXT Report",
+    data=report_txt.encode('utf-8'),  # Encode as UTF-8 to ensure compatibility
+    file_name="solar_estimate_appliance.txt"
+)
 
-st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_appliance.txt")
-
-    st.download_button("📄 Download TXT Report", data=report_txt, file_name="solar_estimate_appliance.txt")
 
     # CSV Report
     df = pd.DataFrame({
