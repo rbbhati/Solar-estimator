@@ -344,18 +344,18 @@ st.download_button(
 )
 # CSV Report
 df = pd.DataFrame({
-    "Location": [selected_city],  # ← Aligned with 'df = pd.DataFrame('
-    "Sun Hours": [sun_hours],
-    "Preset": [preset],
-    "Monthly Usage (kWh)": [monthly_energy_kwh],
-    "Required kW": [required_kw],
-    "Required Area (sqm)": [area_needed],
-    "Solar Cost (₹)": [cost_estimate],
-    "Battery Daily kWh": [daily_energy_kwh],
-    "Usable Battery (kWh)": [usable_battery_kwh],
-    "150Ah Batteries": [num_150ah_batteries],
-    "Monthly Grid Bill (₹)": [monthly_grid_cost],
-    "Payback (yrs)": [payback_years]
+"Location": [selected_city],  # ← Aligned with 'df = pd.DataFrame('
+"Sun Hours": [sun_hours],
+"Preset": [preset],
+"Monthly Usage (kWh)": [monthly_energy_kwh],
+"Required kW": [required_kw],
+"Required Area (sqm)": [area_needed],
+"Solar Cost (₹)": [cost_estimate],
+"Battery Daily kWh": [daily_energy_kwh],
+"Usable Battery (kWh)": [usable_battery_kwh],
+"150Ah Batteries": [num_150ah_batteries],
+"Monthly Grid Bill (₹)": [monthly_grid_cost],
+"Payback (yrs)": [payback_years]
 })  # ← Closing parenthesis aligns with 'df = pd.DataFrame('
 
 st.download_button(
