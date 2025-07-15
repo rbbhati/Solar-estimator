@@ -179,18 +179,18 @@ Smart Solar System Estimation Report
 
 
 # ---------------- MODE 2 ------------------
-# ---------------- STEP 1: Appliance Mode Input ----------------
-elif st.session_state.step == 1 and st.session_state.mode == "Appliance-Based Estimator":
-    st.subheader("Step 2: Appliance-Based Estimation")
+if st.session_state.step == 1:  # <-- This was missing!
+    # ---------------- STEP 1: Appliance Mode Input ----------------
+    if st.session_state.mode == "Appliance-Based Estimator":
+        st.subheader("Step 2: Appliance-Based Estimation")
 
-    with st.expander("Choose Home Type & Presets"):
-        preset = st.selectbox("Select Household Type:", [
-            "Custom (Manual Entry)", "Basic Rural Home",
-            "Urban Middle-Class Flat", "Modern Urban Villa"
-        ], key="preset_type")
-
+        with st.expander("Choose Home Type & Presets"):
+            preset = st.selectbox("Select Household Type:", [
+                "Custom (Manual Entry)", "Basic Rural Home",
+                "Urban Middle-Class Flat", "Modern Urban Villa"
+            ], key="preset_type")
         # Default appliance settings
-        values = {'fan_count': 0, 'fan_hours': 0, 'bulb_count': 0, 'bulb_hours': 0,
+           values = {'fan_count': 0, 'fan_hours': 0, 'bulb_count': 0, 'bulb_hours': 0,
                   'tv': False, 'tv_hours': 0, 'fridge': False, 'router': False,
                   'mobile_count': 0, 'mobile_hours': 0, 'laptop_count': 0, 'laptop_hours': 0,
                   'ac': False, 'ac_hours': 0, 'washing': False, 'washing_hours': 0,
@@ -313,35 +313,24 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
 
    # TXT Report
 def generate_report():
-    selected_city = st.session_state.get('selected_city', 'Unknown Location')
-    sun_hours = st.session_state.get('sun_hours', 0)
-report_txt = f"""Smart Solar System Estimation Report
+        return f"""Smart Solar System Estimation Report
 -----------------------------------
- Location: {selected_city}  
- Sun Hours: {sun_hours} hours/day  
- Household Type: {preset}  
+Location: {st.session_state.get('selected_city', 'Unknown Location')}
+Sun Hours: {st.session_state.get('sun_hours', 0)} hours/day
+Household Type: {preset}
 
- Appliance-Based Energy Use:
-- Estimated Monthly Usage: {monthly_energy_kwh} kWh 
+Appliance-Based Energy Use:
+- Estimated Monthly Usage: {monthly_energy_kwh} kWh
 - Required Solar Size: {required_kw} kW
-- Required Area: {area_needed} sq. meters
-- Estimated Solar Cost: ₹ {cost_estimate}
-
- Battery Backup Suggestion:
-- Daily Usage: {daily_energy_kwh:.2f} kWh
-- Usable Battery Required: {usable_battery_kwh:.2f} kWh
-- Suggested Batteries: {num_150ah_batteries} x 150Ah (12V)
-
- Financials:
-- Monthly Grid Cost: ₹ {monthly_grid_cost}
-- Monthly Savings: ₹ {monthly_grid_cost}
-- Payback Period: {payback_years} years
+... (rest of your report) ...
 """
-st.download_button(
-    "📄 Download TXT Report",
-    data=report_txt.encode('utf-8'),  # Encode as UTF-8 to ensure compatibility
-    file_name="solar_estimate_appliance.txt"
-)
+    
+    # Download buttons
+    st.download_button(
+        "📄 Download TXT Report",
+        data=generate_report().encode('utf-8'),
+        file_name="solar_estimate_appliance.txt"
+    )
 # CSV Report
 df = pd.DataFrame({
     "Location": [selected_city],  # ← Aligned with 'df = pd.DataFrame('
