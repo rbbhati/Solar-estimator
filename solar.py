@@ -336,9 +336,6 @@ Financials:
 - Payback Period: {st.session_state.get('payback_years', 0)} years
 """
 
-# Earlier in your code where you set the preset:
-st.session_state.preset = preset  # Add this after you get the preset value
-
 # Download button remains the same
 st.download_button(
     "📄 Download TXT Report",
