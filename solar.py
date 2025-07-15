@@ -74,8 +74,8 @@ if st.session_state.step == 0:
     if st.button("Next ➡"):
         next_step()
 # ---------------- MODE 1 ------------------
-elif st.session_state.step == 1 and
-st.session_state.mode == "Monthly Units Estimator":
+elif (st.session_state.step == 1 and
+st.session_state.mode == "Monthly Units Estimator"):
     st.subheader("Step 2: Monthly Units Estimation")
     with st.expander("📈 Monthly Units Estimator", expanded=True)
     monthly_units_input = st.number_input("Enter your average monthly electricity usage (in units/kWh):", min_value=0.0, value=300.0)
@@ -92,8 +92,8 @@ st.session_state.mode == "Monthly Units Estimator":
     with col2:
         st.button("Next ➡", on_click=next_step)
 
-elif st.session_state.step == 2 and
-st.session_state.mode == "Monthly Units Estimator":
+elif (st.session_state.step == 2 and
+st.session_state.mode == "Monthly Units Estimator"):
     st.subheader("Step 3: Your Estimation Results")
         daily_energy_kwh = round(monthly_units_input / 30, 2)
         required_kw = round(monthly_units_input / (solar_output_per_kw / 12), 2)
@@ -168,8 +168,9 @@ Smart Solar System Estimation Report
         st.button("⬅ Back", on_click=prev_step) 
 
 # ---------------- MODE 2 ------------------
-elif mode == "Appliance-Based Estimator":
-    st.header("Appliance-Based Estimator")
+elif (st.session_state.step == 1 and
+      st.session_state.mode == "Appliance-Based Estimator"):
+  st.subheader("Step 2: Appliance-Based Estimation")
     with st.expander("Choose Home Type & Presets"):
         preset = st.selectbox("Select Household Type:", [
             "Custom (Manual Entry)", "Basic Rural Home",
@@ -226,8 +227,8 @@ elif mode == "Appliance-Based Estimator":
     with col2:
         st.button("Next ➡", on_click=next_step)
 
-    elif st.session_state.step == 2 and
-    st.session_state.mode == "Appliance-Based Estimator":
+    elif (st.session_state.step == 2 and
+    st.session_state.mode == "Appliance-Based Estimator"):
         st.subheader("Step 3: Appliance-Based Estimation Result")
         daily_energy_wh = (
             fan_count * 75 * fan_hours + bulb_count * 9 * bulb_hours +
