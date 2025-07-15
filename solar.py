@@ -313,24 +313,38 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
 
    # TXT Report
 def generate_report():
-        return f"""Smart Solar System Estimation Report
+    return f"""Smart Solar System Estimation Report
 -----------------------------------
 Location: {st.session_state.get('selected_city', 'Unknown Location')}
 Sun Hours: {st.session_state.get('sun_hours', 0)} hours/day
-Household Type: {preset}
+Household Type: {st.session_state.get('preset', 'Custom')}
 
 Appliance-Based Energy Use:
-- Estimated Monthly Usage: {monthly_energy_kwh} kWh
-- Required Solar Size: {required_kw} kW
-... (rest of your report) ...
+- Estimated Monthly Usage: {st.session_state.get('monthly_energy_kwh', 0)} kWh
+- Required Solar Size: {st.session_state.get('required_kw', 0)} kW
+- Required Area: {st.session_state.get('area_needed', 0)} sq. meters
+- Estimated Solar Cost: ₹{st.session_state.get('cost_estimate', 0)}
+
+Battery Backup Suggestion:
+- Daily Usage: {st.session_state.get('daily_energy_kwh', 0):.2f} kWh
+- Usable Battery Required: {st.session_state.get('usable_battery_kwh', 0):.2f} kWh
+- Suggested Batteries: {st.session_state.get('num_150ah_batteries', 0)} x 150Ah (12V)
+
+Financials:
+- Monthly Grid Cost: ₹{st.session_state.get('monthly_grid_cost', 0)}
+- Monthly Savings: ₹{st.session_state.get('monthly_grid_cost', 0)}
+- Payback Period: {st.session_state.get('payback_years', 0)} years
 """
-    
-    # Download buttons
+
+# Earlier in your code where you set the preset:
+st.session_state.preset = preset  # Add this after you get the preset value
+
+# Download button remains the same
 st.download_button(
-        "📄 Download TXT Report",
-        data=generate_report().encode('utf-8'),
-        file_name="solar_estimate_appliance.txt"
- )
+    "📄 Download TXT Report",
+    data=generate_report().encode('utf-8'),
+    file_name="solar_estimate_appliance.txt"
+)
 # CSV Report
 df = pd.DataFrame({
     "Location": [selected_city],  # ← Aligned with 'df = pd.DataFrame('
