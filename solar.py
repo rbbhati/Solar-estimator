@@ -403,50 +403,61 @@ installers = [
     {"name": "BrightFuture Solar", "rate": 50000, "warranty": "8 Years", "rating": 4.5}
 ]
 elif st.session_state.step == 3:
-st.subheader("🔧 Recommended Solar Installers")
-selected_installer = st.session_state.get("selected_installer")
+    st.subheader("Step 4: Connect with a Trusted Solar Installer 🔧")
+    st.markdown("Browse verified local installers and submit your details to get a quote.")
 
-for idx, installer in enumerate(installers):
-    col1, col2 = st.columns([4, 1])
+    selected_installer = st.session_state.get("selected_installer")
+
+    # List of installer cards
+    for idx, installer in enumerate(installers):
+        with st.container():
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                st.markdown(f"""
+                **{installer['name']}**  
+                💰 ₹{installer['rate']}/kW  
+                🛡 Warranty: {installer['warranty']}  
+                ⭐ Rating: {installer['rating']} / 5
+                """)
+            with col2:
+                if st.button("📩 Get Quote", key=f"quote_{idx}"):
+                    st.session_state.selected_installer = installer["name"]
+                    selected_installer = installer["name"]
+                    st.experimental_rerun()
+
+    # Lead form if installer is selected
+    if selected_installer and st.session_state.get("estimation_done", False):
+        st.markdown("---")
+        with st.expander(f"📩 Fill your details to get a quote from **{selected_installer}**"):
+            name = st.text_input("👤 Full Name")
+            phone = st.text_input("📞 Phone Number")
+            email = st.text_input("📧 Email Address")
+            location = st.text_input("📍 Your Location (City or Area)", value=st.session_state.get("selected_city", ""))
+
+            est_kw = st.session_state.get("required_kw", 0)
+            usage_kwh = st.session_state.get("monthly_energy_used", st.session_state.get("appliance_energy_used", 0))
+
+            st.markdown(f"📦 **Estimated System Size:** {est_kw} kW")
+            st.markdown(f"⚡ **Estimated Monthly Usage:** {usage_kwh} kWh")
+
+            if st.button("✅ Submit Request"):
+                if not name or not phone or not email:
+                    st.error("❌ Please fill in all required fields.")
+                elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                    st.warning("⚠ Please enter a valid email address.")
+                else:
+                    with st.spinner("📤 Submitting your request..."):
+                        # Save to Google Sheet later here
+                        st.success(f"✅ Your request to **{selected_installer}** has been submitted!")
+                        st.session_state.selected_installer = None
+
+    # Navigation buttons
+    st.markdown("---")
+    col1, col2 = st.columns(2)
     with col1:
-        st.markdown(f"""
-            ### {installer['name']}
-            💰 ₹{installer['rate']}/kW  
-            🛡 {installer['warranty']}  
-            ⭐ {installer['rating']} / 5
-        """)
-    with col2:
-        if st.button("📩 Get Quote", key=f"quote_{idx}"):
-            st.session_state.selected_installer = installer["name"]
-            selected_installer = installer["name"]
-
-if selected_installer and st.session_state.estimation_done:
-    with st.expander(f"📩 Fill your details to get a quote from {selected_installer}"):
-        name = st.text_input("👤 Full Name")
-        phone = st.text_input("📞 Phone Number")
-        email = st.text_input("📧 Email Address")
-        location = st.text_input("📍 Your Location (City or Area)", selected_city)
-        est_kw = st.session_state.get("required_kw", 0)
-        usage_kwh = st.session_state.get("monthly_energy_used", st.session_state.get("appliance_energy_used", 0))
-
-        st.markdown(f"📦 *Estimated System Size:* {est_kw} kW")
-        st.markdown(f"⚡ *Estimated Monthly Usage:* {usage_kwh} kWh")
-
-        if st.button("Submit Lead"):
-            if not name or not phone or not email:
-                st.error("❌ Please fill in all required fields.")
-            elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-                st.warning("⚠ Please enter a valid email address.")
-            else:
-                with st.spinner("Submitting your details..."):
-                    st.success("✅ Your request has been submitted! We'll connect you with the installer shortly.")
-                    st.session_state.selected_installer = None
-st.markdown("---")
-col1, col2 = st.columns(2)
-with col1:
         st.button("⬅ Back to Results", on_click=lambda: st.session_state.update(step=2))
-with col2:
-        st.button("🏁 Finish", on_click=lambda: st.session_state.update(step=0, mode=None))            
+    with col2:
+        st.button("🏁 Finish", on_click=lambda: st.session_state.update(step=0, mode=None))           
 
 # Footer
 st.markdown("---")
