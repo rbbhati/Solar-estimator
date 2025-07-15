@@ -306,7 +306,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
 report_txt = f"""
 Smart Solar System Estimation Report
 -----------------------------------
- 📍Location: {selected_city}
+ Location: {selected_city}
 ☀ Sun Hours: {sun_hours} hours/day
 🏠 Household Type: {preset}
 
