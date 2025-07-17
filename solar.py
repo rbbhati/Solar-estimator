@@ -316,7 +316,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
         pdf.image(chart_img_path, x=10, y=None, w=180)
 
         st.download_button(
-            "📄 Download Full PDF Report",
+            " Download Full PDF Report",
             data=pdf.output(dest="S").encode("latin1"),
             file_name="solar_estimate_report.pdf",
             mime="application/pdf"
@@ -648,7 +648,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
             pdf.output(tmp_pdf_file.name)
             with open(tmp_pdf_file.name, "rb") as f:
                 st.download_button(
-                    "📥 Download Appliance-Based PDF Report",
+                    " Download Appliance-Based PDF Report",
                     f.read(),
                     file_name="solar_estimate_appliance.pdf",
                     mime="application/pdf"
