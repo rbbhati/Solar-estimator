@@ -142,24 +142,24 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
 
     if st.session_state.get('calculation_done'):
     # Display results
-    st.success(f"📅 Monthly Energy Used: {st.session_state.monthly_energy_used} kWh")
-    st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
-    st.write(f"🌍 Area Needed: {st.session_state.area_needed} sq. meters")
-    st.write(f"💸 Estimated Solar Cost: ₹{st.session_state.cost_estimate}")
+       st.success(f"📅 Monthly Energy Used: {st.session_state.monthly_energy_used} kWh")
+       st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
+       st.write(f"🌍 Area Needed: {st.session_state.area_needed} sq. meters")
+       st.write(f"💸 Estimated Solar Cost: ₹{st.session_state.cost_estimate}")
 
-    st.markdown("---")
-    st.write("Battery Backup Suggestion")
-    st.write(f"🔌 Daily backup energy needed: {st.session_state.daily_energy_kwh} kWh")
-    st.write(f"📂 Usable battery capacity required (80% DoD): {st.session_state.usable_battery_kwh} kWh")
-    st.write(f"🔋 Suggested Battery: {st.session_state.num_150ah_batteries} x 150Ah (12V)")
+       st.markdown("---")
+       st.write("Battery Backup Suggestion")
+       st.write(f"🔌 Daily backup energy needed: {st.session_state.daily_energy_kwh} kWh")
+       st.write(f"📂 Usable battery capacity required (80% DoD): {st.session_state.usable_battery_kwh} kWh")
+       st.write(f"🔋 Suggested Battery: {st.session_state.num_150ah_batteries} x 150Ah (12V)")
 
-    st.metric("Monthly Grid Bill", f"₹{st.session_state.monthly_grid_cost}")
-    st.metric("💰 Monthly Savings", f"₹{st.session_state.monthly_grid_cost}")
-    st.metric("⏳ Payback Period", f"{st.session_state.payback_years} years")
+       st.metric("Monthly Grid Bill", f"₹{st.session_state.monthly_grid_cost}")
+       st.metric("💰 Monthly Savings", f"₹{st.session_state.monthly_grid_cost}")
+       st.metric("⏳ Payback Period", f"{st.session_state.payback_years} years")
 ##chart-------##
-    st.subheader("📈 Grid vs Solar Cost Over Time")
+       st.subheader("📈 Grid vs Solar Cost Over Time")
 
-    col1, col2, col3 = st.columns(3)
+       col1, col2, col3 = st.columns(3)
     with col1:
         user_grid_rate = st.number_input("🔌 Current Grid Rate (₹/kWh)", min_value=2.0, max_value=20.0, value=7.0, step=0.1)
     with col2:
@@ -462,10 +462,10 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
         st.stop()
     
     # ===== THEN CONTINUE WITH YOUR EXISTING CODE =====
-    st.subheader("Step 3: Appliance-Based Estimation Result")
-
-    if st.session_state.get('calculation_done'):
+ 
+if st.session_state.get('calculation_done'):
     # Display results
+    st.subheader("Step 3: Your Estimation Results")
     st.success(f"📅 Monthly Energy Required: {st.session_state.monthly_energy_kwh} kWh")
     st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
     st.write(f"🌍 Area Needed: {st.session_state.area_needed} sq. meters")
@@ -483,7 +483,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
 
     st.subheader("📈 Grid vs Solar Cost Over Time")
 
-    # User input for chart
+    # User inputs
     col1, col2, col3 = st.columns(3)
     with col1:
         appliance_grid_rate = st.number_input("🔌 Grid Rate (₹/kWh)", min_value=2.0, max_value=20.0, value=7.0, step=0.1, key="grid_rate_app")
@@ -492,7 +492,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
     with col3:
         appliance_degradation = st.number_input("🌞 Solar Degradation (%/yr)", min_value=0.0, max_value=5.0, value=0.8, step=0.1, key="degradation_app")
 
-    # Generate chart data
+    # Data generation
     years = list(range(1, 26))
     solar_costs, grid_costs = [], []
     initial_units = st.session_state.appliance_energy_used * 12
@@ -510,12 +510,12 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
         grid_rate *= (1 + appliance_inflation / 100)
 
     savings = [g - s for g, s in zip(grid_costs, solar_costs)]
-    cumulative_savings = [sum(savings[:i+1]) for i in range(len(savings))]
+    cumulative_savings = [sum(savings[:i + 1]) for i in range(len(savings))]
 
-    payback_year = next((i+1 for i, val in enumerate(cumulative_savings) if val >= st.session_state.cost_estimate), 25)
+    payback_year = next((i + 1 for i, val in enumerate(cumulative_savings) if val >= st.session_state.cost_estimate), 25)
     st.session_state.payback_years_appliance = payback_year
 
-    # Plot chart
+    # Chart plotting
     fig, ax = plt.subplots(facecolor='#0e1117')
     ax.plot(years, grid_costs, label='Grid Cost (₹)', color='red', linewidth=2)
     ax.plot(years, solar_costs, label='Solar Cost (₹)', color='green', linewidth=2)
@@ -532,13 +532,15 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
     for spine in ax.spines.values():
         spine.set_color('white')
 
+    # Save and show chart
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
     buf.seek(0)
     st.image(buf, use_column_width=True)
 
-    # Save chart in session
+    # Save for report
     st.session_state['cost_comparison_chart_appliance'] = buf
+
 
         # Report generation
         report_txt = f"""Smart Solar System Estimation Report
