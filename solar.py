@@ -317,7 +317,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
 
         st.download_button(
             " Download Full PDF Report",
-            data=pdf.output(dest="S").encode("latin1"),
+            data=pdf.output(dest="S").encode("utf-8"),
             file_name="solar_estimate_report.pdf",
             mime="application/pdf"
         )
