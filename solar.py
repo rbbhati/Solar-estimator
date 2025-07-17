@@ -89,7 +89,7 @@ elif st.session_state.step == 1 and st.session_state.mode == "Monthly Units Esti
     with col1:
         st.button("⬅ Back", on_click=prev_step, key="monthly_back")
     with col2:
-        if st.button("Next ➡", on_click=next_step, key="monthly_next"):
+        if st.button("Next ➡", key="monthly_next"):
             # Perform calculations
             solar_output_per_kw = round(st.session_state.sun_hours * 365, 1)
             area_per_kw = 10
@@ -118,14 +118,24 @@ elif st.session_state.step == 1 and st.session_state.mode == "Monthly Units Esti
                 'daily_energy_kwh': daily_energy_kwh,
                 'unit_rate': unit_rate,
                 'calculation_done': True,
-                'estimation_done': True
+                'estimation_done': True,
+                'step': st.session_state.step +1
             })
             st.rerun()
 
 # ---------------- MODE 1 RESULTS ------------------
 elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Estimator":
-    st.subheader("Step 3: Your Estimation Results")
+    # ===== ADD THIS VERIFICATION BLOCK RIGHT HERE =====
+    if not st.session_state.get('calculation_done', False):
+        st.error("❌ Please complete the estimation on the previous page")
+        if st.button("← Back to Estimation"):
+            st.session_state.step = 1  # Go back to calculation page
+            st.rerun()
+        st.stop()  # This prevents the rest of the results page from showing
     
+    # ===== YOUR EXISTING RESULTS CODE STARTS HERE =====
+    st.subheader("Step 3: Your Estimation Results")
+
     if st.session_state.get('calculation_done'):
         # Display results
         st.success(f"📅 Monthly Energy Used: {st.session_state.monthly_energy_used} kWh")
@@ -296,7 +306,7 @@ elif st.session_state.step == 1 and st.session_state.mode == "Appliance-Based Es
     with col1:
         st.button("⬅ Back", on_click=prev_step, key="appl_back")
     with col2:
-        if st.button("Next ➡", on_click=next_step, key="appl_next"):
+        if st.button("Next ➡", key="appl_next"):
             # Perform calculations
             inputs = st.session_state.appliance_inputs
             cost_per_kw = 50000
@@ -340,12 +350,22 @@ elif st.session_state.step == 1 and st.session_state.mode == "Appliance-Based Es
                 'daily_energy_kwh': daily_energy_kwh,
                 'user_unit_rate': inputs["user_unit_rate"],
                 'calculation_done': True,
-                'estimation_done': True
+                'estimation_done': True,
+                'step': st.session_state.step + 1
             })
             st.rerun()
 
 # ---------------- MODE 2 RESULTS ------------------
 elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Estimator":
+    # ===== ADD THE SAME VERIFICATION BLOCK HERE =====
+    if not st.session_state.get('calculation_done', False):
+        st.error("❌ Please complete the estimation on the previous page")
+        if st.button("← Back to Estimation"):
+            st.session_state.step = 1
+            st.rerun()
+        st.stop()
+    
+    # ===== THEN CONTINUE WITH YOUR EXISTING CODE =====
     st.subheader("Step 3: Appliance-Based Estimation Result")
 
     if st.session_state.get('calculation_done'):
