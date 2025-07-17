@@ -493,10 +493,21 @@ elif st.session_state.step == 3:
             
             st.markdown(f"- Estimated System Size: {est_kw} kW")
             st.markdown(f"- Estimated Monthly Usage: {usage_kwh} kWh")
-            
-            if st.form_submit_button("✅ Submit Request"):
-                if not name or not phone or not email:
-                    st.error("Please fill all required fields (marked with *)")
+            submitted = st.form_submit_button("✅ Submit Request")
+            if submitted:
+                errors = []
+
+                if not name.strip():
+                   errors.append("❗ Full Name is required.")
+                if not phone.isdigit() or len(phone) != 10:
+                   errors.append("❗ Phone Number must be 10 digits.")
+                if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                   errors.append("❗ Enter a valid Email Address.")
+
+                if errors:
+                  for err in errors:
+                    st.error(err)
+                st.warning("🚫 Please correct the errors before submitting.")
                 else:
                     st.success(f"✅ Your request to {st.session_state.selected_installer} has been submitted!")
                     st.session_state.show_contact_form = False
