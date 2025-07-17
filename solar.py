@@ -529,6 +529,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
             )
 
         # Data generation
+    if 'appliance_energy_used' in st.session_state:
         years = list(range(1, 26))
         solar_costs, grid_costs = [], []
         initial_units = st.session_state.appliance_energy_used * 12
