@@ -231,21 +231,21 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
     st.session_state['cost_comparison_chart'] = buf
 
         # Report generation
-        report_txt = f"""Smart Solar System Estimation Report
+    report_txt = f"""Smart Solar System Estimation Report
 -----------------------------------
-Location: {st.session_state.selected_city}
-Sun Hours: {st.session_state.sun_hours} hours/day
+   Location: {st.session_state.selected_city}
+   Sun Hours: {st.session_state.sun_hours} hours/day
 
-Monthly Bill: ₹ {st.session_state.monthly_grid_cost}
-Electricity Rate: ₹ {st.session_state.unit_rate}/unit
-Estimated Annual Units: {st.session_state.monthly_energy_used * 12:.1f} kWh
-Suggested Solar Size: {st.session_state.required_kw} kW
-Area Needed: {st.session_state.area_needed} sq. meters
-Estimated Cost: ₹ {st.session_state.cost_estimate}
+   Monthly Bill: ₹ {st.session_state.monthly_grid_cost}
+   Electricity Rate: ₹ {st.session_state.unit_rate}/unit
+   Estimated Annual Units: {st.session_state.monthly_energy_used * 12:.1f} kWh
+   Suggested Solar Size: {st.session_state.required_kw} kW
+   Area Needed: {st.session_state.area_needed} sq. meters
+   Estimated Cost: ₹ {st.session_state.cost_estimate}
 
-Monthly Savings: ₹ {st.session_state.monthly_grid_cost}
-Payback Period: {st.session_state.payback_years} years
-"""
+  Monthly Savings: ₹ {st.session_state.monthly_grid_cost}
+  Payback Period: {st.session_state.payback_years} years
+  """
 
         # CSV Report
         df = pd.DataFrame({
@@ -543,28 +543,28 @@ if st.session_state.get('calculation_done'):
 
 
         # Report generation
-        report_txt = f"""Smart Solar System Estimation Report
+    report_txt = f"""Smart Solar System Estimation Report
 -----------------------------------
-Location: {st.session_state.selected_city}
-Sun Hours: {st.session_state.sun_hours} hours/day
-Household Type: {st.session_state.preset}
+   Location: {st.session_state.selected_city}
+   Sun Hours: {st.session_state.sun_hours} hours/day
+   Household Type: {st.session_state.preset}
 
-Appliance-Based Energy Use:
-- Estimated Monthly Usage: {st.session_state.monthly_energy_kwh} kWh
-- Required Solar Size: {st.session_state.required_kw} kW
-- Required Area: {st.session_state.area_needed} sq. meters
-- Estimated Solar Cost: ₹{st.session_state.cost_estimate}
+   Appliance-Based Energy Use:
+   - Estimated Monthly Usage: {st.session_state.monthly_energy_kwh} kWh
+   - Required Solar Size: {st.session_state.required_kw} kW
+   - Required Area: {st.session_state.area_needed} sq. meters
+   - Estimated Solar Cost: ₹{st.session_state.cost_estimate}
 
-Battery Backup Suggestion:
-- Daily Usage: {st.session_state.daily_energy_kwh:.2f} kWh
-- Usable Battery Required: {st.session_state.usable_battery_kwh:.2f} kWh
-- Suggested Batteries: {st.session_state.num_150ah_batteries} x 150Ah (12V)
+   Battery Backup Suggestion:
+   - Daily Usage: {st.session_state.daily_energy_kwh:.2f} kWh
+   - Usable Battery Required: {st.session_state.usable_battery_kwh:.2f} kWh
+   - Suggested Batteries: {st.session_state.num_150ah_batteries} x 150Ah (12V)
 
-Financials:
-- Monthly Grid Cost: ₹{st.session_state.monthly_grid_cost}
-- Monthly Savings: ₹{st.session_state.monthly_grid_cost}
-- Payback Period: {st.session_state.payback_years} years
-"""
+   Financials:
+   - Monthly Grid Cost: ₹{st.session_state.monthly_grid_cost}
+   - Monthly Savings: ₹{st.session_state.monthly_grid_cost}
+   - Payback Period: {st.session_state.payback_years} years
+   """
 
         # CSV Report
         df = pd.DataFrame({
