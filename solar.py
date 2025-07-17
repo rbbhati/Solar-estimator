@@ -3,6 +3,8 @@ import streamlit as st
 import math
 import re
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # ✅ Use non-GUI backend safe for Streamlit
 import matplotlib.pyplot as plt
 import io
 from fpdf import FPDF
