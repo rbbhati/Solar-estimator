@@ -120,9 +120,10 @@ elif st.session_state.step == 1 and st.session_state.mode == "Monthly Units Esti
 
 # ---------------- MODE 1 RESULTS ------------------
 elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Estimator":
-    st.subheader("Step 3: Your Estimation Results")
-    
-    if st.session_state.get('calculation_done', False):
+    if not st.session_state.get('calculation_done'):
+        st.warning("Complete the estimation first!")
+        st.button("← Back to Form", on_click=prev_step)
+    else:
         # Display results
         st.success(f"📅 Monthly Energy Used: {st.session_state.monthly_energy_used} kWh")
         st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
