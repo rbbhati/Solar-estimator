@@ -3,6 +3,10 @@ import streamlit as st
 import math
 import re
 import pandas as pd
+import matplotlib.pyplot as plt
+import io
+from fpdf import FPDF
+import numpy as np
 
 # --- Session Initialization ---
 if 'step' not in st.session_state:
@@ -137,21 +141,94 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
     st.subheader("Step 3: Your Estimation Results")
 
     if st.session_state.get('calculation_done'):
-        # Display results
-        st.success(f"📅 Monthly Energy Used: {st.session_state.monthly_energy_used} kWh")
-        st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
-        st.write(f"🌍 Area Needed: {st.session_state.area_needed} sq. meters")
-        st.write(f"💸 Estimated Solar Cost: ₹{st.session_state.cost_estimate}")
+    # Display results
+    st.success(f"📅 Monthly Energy Used: {st.session_state.monthly_energy_used} kWh")
+    st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
+    st.write(f"🌍 Area Needed: {st.session_state.area_needed} sq. meters")
+    st.write(f"💸 Estimated Solar Cost: ₹{st.session_state.cost_estimate}")
 
-        st.markdown("---")
-        st.write("Battery Backup Suggestion")
-        st.write(f"🔌 Daily backup energy needed: {st.session_state.daily_energy_kwh} kWh")
-        st.write(f"📂 Usable battery capacity required (80% DoD): {st.session_state.usable_battery_kwh} kWh")
-        st.write(f"🔋 Suggested Battery: {st.session_state.num_150ah_batteries} x 150Ah (12V)")
+    st.markdown("---")
+    st.write("Battery Backup Suggestion")
+    st.write(f"🔌 Daily backup energy needed: {st.session_state.daily_energy_kwh} kWh")
+    st.write(f"📂 Usable battery capacity required (80% DoD): {st.session_state.usable_battery_kwh} kWh")
+    st.write(f"🔋 Suggested Battery: {st.session_state.num_150ah_batteries} x 150Ah (12V)")
 
-        st.metric("Monthly Grid Bill", f"₹{st.session_state.monthly_grid_cost}")
-        st.metric("💰 Monthly Savings", f"₹{st.session_state.monthly_grid_cost}")
-        st.metric("⏳ Payback Period", f"{st.session_state.payback_years} years")
+    st.metric("Monthly Grid Bill", f"₹{st.session_state.monthly_grid_cost}")
+    st.metric("💰 Monthly Savings", f"₹{st.session_state.monthly_grid_cost}")
+    st.metric("⏳ Payback Period", f"{st.session_state.payback_years} years")
+##chart-------##
+    st.subheader("📈 Grid vs Solar Cost Over Time")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        user_grid_rate = st.number_input("🔌 Current Grid Rate (₹/kWh)", min_value=2.0, max_value=20.0, value=7.0, step=0.1)
+    with col2:
+        user_grid_inflation = st.number_input("📈 Annual Grid Inflation Rate (%)", min_value=0.0, max_value=15.0, value=4.0, step=0.5)
+    with col3:
+        user_solar_degradation = st.number_input("☀️ Solar System Degradation Rate (%)", min_value=0.0, max_value=2.0, value=0.5, step=0.1)
+
+    # --- Calculate cost over 25 years ---
+    years = np.arange(1, 26)
+    monthly_units = st.session_state.get("monthly_energy_kwh", 0)
+    total_annual_units = monthly_units * 12
+
+    # Grid cost projection with inflation
+    grid_costs = [total_annual_units * user_grid_rate * ((1 + user_grid_inflation / 100) ** (year - 1)) for year in years]
+    cumulative_grid_costs = np.cumsum(grid_costs)
+
+    # Solar cost projection (one-time install, then degrade)
+    est_kw = st.session_state.get("required_kw", 0)
+    solar_install_cost = est_kw * 75000  # Approx ₹75,000 per kW
+    cumulative_solar_costs = []
+    solar_generation = total_annual_units
+
+    for year in years:
+        if year == 1:
+            cumulative_solar_costs.append(solar_install_cost)
+        else:
+            degradation = (1 - user_solar_degradation / 100) ** (year - 1)
+            yearly_offset = solar_generation * degradation * user_grid_rate * ((1 + user_grid_inflation / 100) ** (year - 1))
+            net_cost = cumulative_solar_costs[-1] - yearly_offset
+            cumulative_solar_costs.append(max(net_cost, 0))
+
+    # --- Find Payback Year ---
+    payback_year = None
+    for i in range(len(years)):
+        if cumulative_solar_costs[i] < cumulative_grid_costs[i]:
+            payback_year = years[i]
+            break
+
+    total_savings = cumulative_grid_costs[-1] - cumulative_solar_costs[-1]
+
+    # --- Plot ---
+    fig, ax = plt.subplots(facecolor='#0e1117')
+    ax.set_facecolor('#0e1117')
+    ax.plot(years, cumulative_grid_costs, label="Grid Cost", color="#e74c3c", linewidth=2)
+    ax.plot(years, cumulative_solar_costs, label="Solar Cost", color="#2ecc71", linewidth=2)
+    ax.set_title("Cumulative Cost over 25 Years", color="white")
+    ax.set_xlabel("Year", color="white")
+    ax.set_ylabel("₹ Cost", color="white")
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+    ax.legend(facecolor='#0e1117', edgecolor='white', labelcolor='white')
+
+    # Annotate payback
+    if payback_year:
+        ax.axvline(x=payback_year, linestyle='--', color='white', alpha=0.5)
+        ax.text(payback_year + 0.3, cumulative_grid_costs[payback_year-1], f"Payback Year: {payback_year}", color='white')
+
+    # Annotate total savings
+    ax.text(1, cumulative_grid_costs[-1]*0.9, f"Total Savings: ₹{int(total_savings):,}", color='white', fontsize=10)
+
+    # Save image to buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+
+    st.image(buf, caption="Cost Comparison: Grid vs Solar (25 Years)")
+
+    # --- Save chart image for PDF ---
+    st.session_state['cost_comparison_chart'] = buf
 
         # Report generation
         report_txt = f"""Smart Solar System Estimation Report
@@ -198,6 +275,25 @@ Payback Period: {st.session_state.payback_years} years
                 file_name="solar_estimate_bill.csv",
                 mime='text/csv'
             )
+         pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        for line in report_txt.split("\n"):
+            pdf.cell(200, 10, txt=line, ln=True)
+
+       # Add chart image
+       chart_img_path = "/tmp/cost_comparison_chart.png"
+       with open(chart_img_path, "wb") as f:
+         f.write(buf.getvalue())
+       pdf.image(chart_img_path, x=10, y=None, w=180)
+
+       st.download_button(
+           "📄 Download Full PDF Report",
+           data=pdf.output(dest="S").encode("latin1"),
+           file_name="solar_estimate_report.pdf",
+           mime="application/pdf"
+       )
+
 
         st.button("⬅ Back", on_click=prev_step, key="monthly_results_back")
         if st.button("🚀 Connect with Installer", key="go_to_installer_monthly"):
@@ -369,21 +465,80 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
     st.subheader("Step 3: Appliance-Based Estimation Result")
 
     if st.session_state.get('calculation_done'):
-        # Display results
-        st.success(f"📅 Monthly Energy Required: {st.session_state.monthly_energy_kwh} kWh")
-        st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
-        st.write(f"🌍 Area Needed: {st.session_state.area_needed} sq. meters")
-        st.write(f"💸 Estimated Solar Cost: ₹{st.session_state.cost_estimate}")
+    # Display results
+    st.success(f"📅 Monthly Energy Required: {st.session_state.monthly_energy_kwh} kWh")
+    st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
+    st.write(f"🌍 Area Needed: {st.session_state.area_needed} sq. meters")
+    st.write(f"💸 Estimated Solar Cost: ₹{st.session_state.cost_estimate}")
 
-        st.markdown("---")
-        st.write("Battery Backup Suggestion")
-        st.write(f"🔌 Daily backup energy needed: {st.session_state.daily_energy_kwh:.2f} kWh")
-        st.write(f"📂 Usable battery capacity required (80% DoD): {st.session_state.usable_battery_kwh} kWh")
-        st.write(f"🔋 Suggested Battery: {st.session_state.num_150ah_batteries} x 150Ah (12V)")
+    st.markdown("---")
+    st.write("🔋 Battery Backup Suggestion")
+    st.write(f"🔌 Daily backup energy needed: {st.session_state.daily_energy_kwh:.2f} kWh")
+    st.write(f"📂 Usable battery capacity required (80% DoD): {st.session_state.usable_battery_kwh} kWh")
+    st.write(f"🔋 Suggested Battery: {st.session_state.num_150ah_batteries} x 150Ah (12V)")
 
-        st.metric("Monthly Grid Bill", f"₹{st.session_state.monthly_grid_cost}")
-        st.metric("💰 Monthly Savings", f"₹{st.session_state.monthly_grid_cost}")
-        st.metric("⏳ Payback Period", f"{st.session_state.payback_years} years")
+    st.metric("Monthly Grid Bill", f"₹{st.session_state.monthly_grid_cost}")
+    st.metric("💰 Monthly Savings", f"₹{st.session_state.monthly_grid_cost}")
+    st.metric("⏳ Payback Period", f"{st.session_state.payback_years} years")
+
+    st.subheader("📈 Grid vs Solar Cost Over Time")
+
+    # User input for chart
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        appliance_grid_rate = st.number_input("🔌 Grid Rate (₹/kWh)", min_value=2.0, max_value=20.0, value=7.0, step=0.1, key="grid_rate_app")
+    with col2:
+        appliance_inflation = st.number_input("📈 Grid Rate Inflation (%/yr)", min_value=0.0, max_value=10.0, value=5.0, step=0.5, key="inflation_app")
+    with col3:
+        appliance_degradation = st.number_input("🌞 Solar Degradation (%/yr)", min_value=0.0, max_value=5.0, value=0.8, step=0.1, key="degradation_app")
+
+    # Generate chart data
+    years = list(range(1, 26))
+    solar_costs, grid_costs = [], []
+    initial_units = st.session_state.appliance_energy_used * 12
+    solar_units = initial_units
+    grid_rate = appliance_grid_rate
+
+    for year in years:
+        solar_cost = solar_units * appliance_grid_rate
+        grid_cost = initial_units * grid_rate
+
+        solar_costs.append(solar_cost)
+        grid_costs.append(grid_cost)
+
+        solar_units *= (1 - appliance_degradation / 100)
+        grid_rate *= (1 + appliance_inflation / 100)
+
+    savings = [g - s for g, s in zip(grid_costs, solar_costs)]
+    cumulative_savings = [sum(savings[:i+1]) for i in range(len(savings))]
+
+    payback_year = next((i+1 for i, val in enumerate(cumulative_savings) if val >= st.session_state.cost_estimate), 25)
+    st.session_state.payback_years_appliance = payback_year
+
+    # Plot chart
+    fig, ax = plt.subplots(facecolor='#0e1117')
+    ax.plot(years, grid_costs, label='Grid Cost (₹)', color='red', linewidth=2)
+    ax.plot(years, solar_costs, label='Solar Cost (₹)', color='green', linewidth=2)
+    ax.fill_between(years, savings, color='yellow', alpha=0.2, label='Savings')
+    ax.axvline(payback_year, color='cyan', linestyle='--', label=f'Payback Year: {payback_year}')
+
+    ax.set_xlabel("Years", color='white')
+    ax.set_ylabel("₹ Cost", color='white')
+    ax.set_title("Grid vs Solar Cost Over 25 Years", color='white')
+    ax.legend()
+    ax.grid(True, linestyle='--', alpha=0.5)
+    ax.set_facecolor('#0e1117')
+    ax.tick_params(colors='white')
+    for spine in ax.spines.values():
+        spine.set_color('white')
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+    buf.seek(0)
+    st.image(buf, use_column_width=True)
+
+    # Save chart in session
+    st.session_state['cost_comparison_chart_appliance'] = buf
 
         # Report generation
         report_txt = f"""Smart Solar System Estimation Report
@@ -439,6 +594,30 @@ Financials:
                 file_name="solar_estimate_appliance.csv",
                 mime='text/csv'
             )
+           # PDF report generation
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, report_txt)
+
+# Insert chart into PDF if available
+       if 'cost_comparison_chart_appliance' in st.session_state:
+           with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+               tmpfile.write(st.session_state['cost_comparison_chart_appliance'].getbuffer())
+               tmpfile_path = tmpfile.name
+           pdf.image(tmpfile_path, x=10, w=190)
+
+# Export and download PDF
+      with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf_file:
+           pdf.output(tmp_pdf_file.name)
+           with open(tmp_pdf_file.name, "rb") as f:
+               st.download_button(
+                   "📥 Download Appliance-Based PDF Report",
+                   f.read(),
+                   file_name="solar_estimate_appliance.pdf",
+                    mime="application/pdf"
+               )
+ 
 
         st.button("⬅ Back", on_click=prev_step, key="appl_result_back")
         if st.button("🚀 Connect with Installer", key="appl_go_to_installer"):
