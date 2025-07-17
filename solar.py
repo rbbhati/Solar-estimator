@@ -507,7 +507,7 @@ elif st.session_state.step == 3:
                 if errors:
                   for err in errors:
                     st.error(err)
-                st.warning("🚫 Please correct the errors before submitting.")
+                  st.warning("🚫 Please correct the errors before submitting.")
                 else:
                     st.success(f"✅ Your request to {st.session_state.selected_installer} has been submitted!")
                     st.session_state.show_contact_form = False
