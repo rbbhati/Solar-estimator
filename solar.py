@@ -487,7 +487,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
             st.rerun()
         st.stop()
     
-    if st.session_state.get('calculation_done'):
+    if st.session_state.get("calculation_done")::
         # Display results
         st.subheader("Step 3: Your Estimation Results")
         st.success(f"📅 Monthly Energy Required: {st.session_state.monthly_energy_kwh} kWh")
@@ -529,7 +529,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
             )
 
         # Data generation
-    if 'appliance_energy_used' in st.session_state:
+     if st.session_state.get("calculation_done"):
         years = list(range(1, 26))
         solar_costs, grid_costs = [], []
         initial_units = st.session_state.appliance_energy_used * 12
