@@ -18,18 +18,23 @@ if 'selected_installer' not in st.session_state:
 if 'selected_city' not in st.session_state:
     st.session_state.selected_city = "Unknown Location"
 if 'sun_hours' not in st.session_state:
-    st.session_state.sun_hours = 5.0  # Default value
+    st.session_state.sun_hours = 5.0
 if 'preset' not in st.session_state:
     st.session_state.preset = "Custom"
+if 'show_contact_form' not in st.session_state:
+    st.session_state.show_contact_form = False
 if 'calculation_done' not in st.session_state:
     st.session_state.calculation_done = False
 
 # --- Navigation Functions ---
 def next_step():
     st.session_state.step += 1
+    st.session_state.calculation_done = False
+    st.rerun()
 
 def prev_step():
     st.session_state.step -= 1
+    st.rerun()
 
 # --- Welcome Screen ---
 if not st.session_state.start:
@@ -40,8 +45,7 @@ if not st.session_state.start:
     st.write("You'll also get a suggestion for battery backup and savings comparison.")
     if st.button("🚀 Get Started", key="start_btn"):
         st.session_state.start = True
-        st.session_state.calculation_done = False
-        st.experimental_rerun()
+        st.rerun()
     st.stop()
 
 # --- Page Config ---
@@ -101,7 +105,7 @@ elif st.session_state.step == 1 and st.session_state.mode == "Monthly Units Esti
             battery_capacity_ah = round((usable_battery_kwh * 1000) / 12, 0)
             num_150ah_batteries = math.ceil(battery_capacity_ah / 150)
             
-            # Store results in session state
+            # Store results
             st.session_state.update({
                 'monthly_energy_used': monthly_units_input,
                 'required_kw': required_kw,
@@ -116,14 +120,13 @@ elif st.session_state.step == 1 and st.session_state.mode == "Monthly Units Esti
                 'calculation_done': True,
                 'estimation_done': True
             })
-            st.experimental_rerun()
+            st.rerun()
 
 # ---------------- MODE 1 RESULTS ------------------
 elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Estimator":
-    if not st.session_state.get('calculation_done'):
-        st.warning("Complete the estimation first!")
-        st.button("← Back to Form", on_click=prev_step)
-    else:
+    st.subheader("Step 3: Your Estimation Results")
+    
+    if st.session_state.get('calculation_done'):
         # Display results
         st.success(f"📅 Monthly Energy Used: {st.session_state.monthly_energy_used} kWh")
         st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
@@ -189,12 +192,11 @@ Payback Period: {st.session_state.payback_years} years
         st.button("⬅ Back", on_click=prev_step, key="monthly_results_back")
         if st.button("🚀 Connect with Installer", key="go_to_installer_monthly"):
             st.session_state.step = 3
-            st.experimental_rerun()
+            st.rerun()
     else:
-        st.warning("Please go back and complete the estimation first")
-        if st.button("⬅ Back to Estimation"):
+        st.warning("❌ Please complete the estimation first")
+        if st.button("⬅ Back to Form"):
             prev_step()
-            st.experimental_rerun()
 
 # ---------------- MODE 2 ------------------
 elif st.session_state.step == 1 and st.session_state.mode == "Appliance-Based Estimator":
@@ -325,7 +327,7 @@ elif st.session_state.step == 1 and st.session_state.mode == "Appliance-Based Es
             battery_capacity_ah = round((usable_battery_kwh * 1000) / 12, 0)
             num_150ah_batteries = math.ceil(battery_capacity_ah / 150)
 
-            # Store results in session state
+            # Store results
             st.session_state.update({
                 'monthly_energy_kwh': monthly_energy_kwh,
                 'required_kw': required_kw,
@@ -340,13 +342,13 @@ elif st.session_state.step == 1 and st.session_state.mode == "Appliance-Based Es
                 'calculation_done': True,
                 'estimation_done': True
             })
-            st.experimental_rerun()
+            st.rerun()
 
 # ---------------- MODE 2 RESULTS ------------------
 elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Estimator":
     st.subheader("Step 3: Appliance-Based Estimation Result")
 
-    if st.session_state.get('calculation_done', False):
+    if st.session_state.get('calculation_done'):
         # Display results
         st.success(f"📅 Monthly Energy Required: {st.session_state.monthly_energy_kwh} kWh")
         st.write(f"⚡ Suggested Solar Panel Size: {st.session_state.required_kw} kW")
@@ -421,12 +423,11 @@ Financials:
         st.button("⬅ Back", on_click=prev_step, key="appl_result_back")
         if st.button("🚀 Connect with Installer", key="appl_go_to_installer"):
             st.session_state.step = 3
-            st.experimental_rerun()
+            st.rerun()
     else:
-        st.warning("Please go back and complete the estimation first")
-        if st.button("⬅ Back to Estimation"):
+        st.warning("❌ Please complete the estimation first")
+        if st.button("⬅ Back to Form"):
             prev_step()
-            st.experimental_rerun()
 
 # ---------------- INSTALLER CONNECTION ------------------
 elif st.session_state.step == 3:
@@ -439,8 +440,7 @@ elif st.session_state.step == 3:
         {"name": "BrightFuture Solar", "rate": 50000, "warranty": "8 Years", "rating": 4.5}
     ]
 
-    selected_installer = st.session_state.get("selected_installer")
-
+    # Display installers
     for idx, installer in enumerate(installers):
         with st.container():
             col1, col2 = st.columns([4, 1])
@@ -454,34 +454,36 @@ elif st.session_state.step == 3:
             with col2:
                 if st.button("📩 Get Quote", key=f"quote_{idx}"):
                     st.session_state.selected_installer = installer["name"]
-                    st.experimental_rerun()
+                    st.session_state.show_contact_form = True
+                    st.rerun()
 
-    if selected_installer and st.session_state.get("estimation_done", False):
-        st.markdown("---")
-        with st.expander(f"📩 Fill your details to get a quote from **{selected_installer}**", expanded=True):
-            name = st.text_input("👤 Full Name")
-            phone = st.text_input("📞 Phone Number")
-            email = st.text_input("📧 Email Address")
+    # Show contact form if installer selected
+    if st.session_state.get('show_contact_form') and st.session_state.selected_installer:
+        with st.form(key="installer_contact_form"):
+            st.markdown(f"### Contact {st.session_state.selected_installer}")
+            
+            name = st.text_input("👤 Full Name*")
+            phone = st.text_input("📞 Phone Number*")
+            email = st.text_input("📧 Email Address*")
             location = st.text_input("📍 Your Location", value=st.session_state.get("selected_city", ""))
-
-            est_kw = st.session_state.get("required_kw", 0)
-            usage_kwh = st.session_state.get("monthly_energy_used", st.session_state.get("appliance_energy_used", 0))
-
-            st.markdown(f"📦 **Estimated System Size:** {est_kw} kW")
-            st.markdown(f"⚡ **Estimated Monthly Usage:** {usage_kwh} kWh")
-
-            if st.button("✅ Submit Request"):
+            
+            st.markdown("**System Details:**")
+            est_kw = st.session_state.get('required_kw', 0)
+            usage_kwh = st.session_state.get('monthly_energy_used', st.session_state.get('monthly_energy_kwh', 0))
+            
+            st.markdown(f"- Estimated System Size: {est_kw} kW")
+            st.markdown(f"- Estimated Monthly Usage: {usage_kwh} kWh")
+            
+            if st.form_submit_button("✅ Submit Request"):
                 if not name or not phone or not email:
-                    st.error("❌ Please fill in all required fields.")
-                elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-                    st.warning("⚠ Please enter a valid email address.")
+                    st.error("Please fill all required fields (marked with *)")
                 else:
-                    with st.spinner("📤 Submitting your request..."):
-                        st.success(f"✅ Your request to **{selected_installer}** has been submitted!")
-                        st.session_state.selected_installer = None
-                        st.experimental_rerun()
+                    st.success(f"✅ Your request to {st.session_state.selected_installer} has been submitted!")
+                    st.session_state.show_contact_form = False
+                    st.session_state.selected_installer = None
+                    st.rerun()
 
-    # Navigation
+    # Navigation buttons
     st.markdown("---")
     col1, col2 = st.columns(2)
     with col1:
@@ -492,4 +494,3 @@ elif st.session_state.step == 3:
 # Footer
 st.markdown("---")
 st.caption("Smart Solar Estimator | by Ronit Bhati")
-
