@@ -472,6 +472,7 @@ elif st.session_state.step == 1 and st.session_state.mode == "Appliance-Based Es
                 'num_150ah_batteries': num_150ah_batteries,
                 'daily_energy_kwh': daily_energy_kwh,
                 'user_unit_rate': inputs["user_unit_rate"],
+                'appliance_energy_used': monthly_energy_kwh,
                 'calculation_done': True,
                 'estimation_done': True,
                 'step': st.session_state.step + 1
