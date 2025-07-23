@@ -546,8 +546,8 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
                 solar_units *= (1 - appliance_degradation / 100)
                 grid_rate *= (1 + appliance_inflation / 100)
 
-               savings = [g - s for g, s in zip(grid_costs, solar_costs)]
-               cumulative_savings = [sum(savings[:i + 1]) for i in range(len(savings))]
+                savings = [g - s for g, s in zip(grid_costs, solar_costs)]
+                cumulative_savings = [sum(savings[:i + 1]) for i in range(len(savings))]
 
            payback_year = next((i + 1 for i, val in enumerate(cumulative_savings) if val >= st.session_state.cost_estimate), 25)
            st.session_state.payback_years_appliance = payback_year
