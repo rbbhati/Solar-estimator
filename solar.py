@@ -650,7 +650,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
             pdf.image(tmpfile_path, x=10, w=190)
 
         # Export and download PDF
-         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf_file:
             pdf.output(tmp_pdf_file.name)
             with open(tmp_pdf_file.name, "rb") as f:
                 st.download_button(
