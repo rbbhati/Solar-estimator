@@ -549,32 +549,32 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
                 savings = [g - s for g, s in zip(grid_costs, solar_costs)]
                 cumulative_savings = [sum(savings[:i + 1]) for i in range(len(savings))]
 
-           payback_year = next((i + 1 for i, val in enumerate(cumulative_savings) if val >= st.session_state.cost_estimate), 25)
-           st.session_state.payback_years_appliance = payback_year
+             payback_year = next((i + 1 for i, val in enumerate(cumulative_savings) if val >= st.session_state.cost_estimate), 25)
+             st.session_state.payback_years_appliance = payback_year
 
-           # Chart plotting
-           fig, ax = plt.subplots(facecolor='#0e1117')
-           ax.plot(years, grid_costs, label='Grid Cost (₹)', color='red', linewidth=2)
-           ax.plot(years, solar_costs, label='Solar Cost (₹)', color='green', linewidth=2)
-           ax.fill_between(years, savings, color='yellow', alpha=0.2, label='Savings')
-           ax.axvline(payback_year, color='cyan', linestyle='--', label=f'Payback Year: {payback_year}')
+             # Chart plotting
+             fig, ax = plt.subplots(facecolor='#0e1117')
+             ax.plot(years, grid_costs, label='Grid Cost (₹)', color='red', linewidth=2)
+             ax.plot(years, solar_costs, label='Solar Cost (₹)', color='green', linewidth=2)
+             ax.fill_between(years, savings, color='yellow', alpha=0.2, label='Savings')
+             ax.axvline(payback_year, color='cyan', linestyle='--', label=f'Payback Year: {payback_year}')
 
-           ax.set_xlabel("Years", color='white')
-           ax.set_ylabel("₹ Cost", color='white')
-           ax.set_title("Grid vs Solar Cost Over 25 Years", color='white')
-           ax.legend()
-           ax.grid(True, linestyle='--', alpha=0.5)
-           ax.set_facecolor('#0e1117')
-           ax.tick_params(colors='white')
-           for spine in ax.spines.values():
-               spine.set_color('white')
+             ax.set_xlabel("Years", color='white')
+             ax.set_ylabel("₹ Cost", color='white')
+             ax.set_title("Grid vs Solar Cost Over 25 Years", color='white')
+             ax.legend()
+             ax.grid(True, linestyle='--', alpha=0.5)
+             ax.set_facecolor('#0e1117')
+             ax.tick_params(colors='white')
+             for spine in ax.spines.values():
+                spine.set_color('white')
 
-           # Save and show chart
-           buf = io.BytesIO()
-           fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
-           buf.seek(0)
-           st.image(buf, use_column_width=True)
-           st.session_state['cost_comparison_chart_appliance'] = buf
+             # Save and show chart
+             buf = io.BytesIO()
+             fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+             buf.seek(0)
+             st.image(buf, use_column_width=True)
+             st.session_state['cost_comparison_chart_appliance'] = buf
 
         # Report generation
         report_txt = f"""Smart Solar System Estimation Report
