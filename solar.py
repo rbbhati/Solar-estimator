@@ -637,6 +637,9 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
+        def remove_non_latin1(text):
+             return ''.join(char for char in text if ord(char) < 256)
+        clean_report_txt = remove_non_latin1(report_txt)
         pdf.multi_cell(0, 10, report_txt)
 
         # Insert chart into PDF if available
