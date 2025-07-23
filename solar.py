@@ -634,8 +634,8 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
             )
 
         # PDF report generation
-        def remove_non_latin1(text):
-             return ''.join(char for char in text if ord(char) < 256)
+        def clean_text_for_pdf(text):
+             return ''.join(c if 0 <= ord(c) <= 255 else '?' for c in text)
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
