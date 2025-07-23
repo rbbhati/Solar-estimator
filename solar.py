@@ -536,7 +536,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
              solar_units = initial_units
              grid_rate = appliance_grid_rate
 
-            for year in years:
+             for year in years:
                 solar_cost = solar_units * appliance_grid_rate
                 grid_cost = initial_units * grid_rate
 
