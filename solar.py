@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import io
 from fpdf import FPDF
 import numpy as np
+import tempfile
 
 # --- Session Initialization ---
 if 'step' not in st.session_state:
