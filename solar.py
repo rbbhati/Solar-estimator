@@ -640,7 +640,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
         def remove_non_latin1(text):
              return ''.join(char for char in text if ord(char) < 256)
         clean_report_txt = remove_non_latin1(report_txt)
-        pdf.multi_cell(0, 10, report_txt)
+        pdf.multi_cell(0, 10, clean_text_for_pdf(report_txt))
 
         # Insert chart into PDF if available
         if 'cost_comparison_chart_appliance' in st.session_state:
@@ -650,7 +650,7 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
             pdf.image(tmpfile_path, x=10, w=190)
 
         # Export and download PDF
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf_file:
+         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf_file:
             pdf.output(tmp_pdf_file.name)
             with open(tmp_pdf_file.name, "rb") as f:
                 st.download_button(
