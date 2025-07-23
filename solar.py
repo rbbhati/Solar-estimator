@@ -535,8 +535,8 @@ elif st.session_state.step == 2 and st.session_state.mode == "Appliance-Based Es
         solar_costs, grid_costs = [], []
         if st.session_state.get("calculation_done"):
              initial_units = st.session_state.appliance_energy_used * 12
-        solar_units = initial_units
-        grid_rate = appliance_grid_rate
+             solar_units = initial_units
+             grid_rate = appliance_grid_rate
 
         for year in years:
             solar_cost = solar_units * appliance_grid_rate
