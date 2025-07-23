@@ -304,24 +304,34 @@ elif st.session_state.step == 2 and st.session_state.mode == "Monthly Units Esti
             )
 
         # PDF Report
+        def remove_non_latin1(text):
+            return ''.join(c if 0 <= ord(c) <= 255 else '?' for c in text)
+
+        # PDF Report
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-        for line in report_txt.split("\n"):
-            pdf.cell(200, 10, txt=line, ln=True)
+
+        # Clean the report text
+        cleaned_report_txt = remove_non_latin1(report_txt)
+
+        # Add text line by line
+        for line in cleaned_report_txt.split("\n"):
+             pdf.cell(200, 10, txt=line, ln=True)
 
         # Add chart image
         chart_img_path = "/tmp/cost_comparison_chart.png"
         with open(chart_img_path, "wb") as f:
-            f.write(buf.getvalue())
+              f.write(buf.getvalue())
         pdf.image(chart_img_path, x=10, y=None, w=180)
 
+        # Generate downloadable PDF
         st.download_button(
-            " Download Full PDF Report",
-            data=pdf.output(dest="S").encode("latin-1", errors="ignore"),
-            file_name="solar_estimate_report.pdf",
-            mime="application/pdf"
-        )
+             " Download Full PDF Report",
+             data=pdf.output(dest="S").encode("latin-1"),
+             file_name="solar_estimate_report.pdf",
+             mime="application/pdf"
+         )
 
         st.button("⬅ Back", on_click=prev_step, key="monthly_results_back")
         if st.button("🚀 Connect with Installer", key="go_to_installer_monthly"):
